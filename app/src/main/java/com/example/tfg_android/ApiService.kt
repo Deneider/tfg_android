@@ -22,6 +22,8 @@ interface ApiService {
     @POST("apiDesubicados/Trabajadores")
     fun createTrabajador(@Body trabajador: Trabajador): Call<Void>
 
+
+
     // CLIENTE
 
     // Para obtener todos los clientes
