@@ -1,4 +1,4 @@
-package com.example.tfg_android
+package com.example.tfg_android.funcionesSinGui
 
 import retrofit2.Call
 import retrofit2.http.Body
@@ -37,5 +37,11 @@ interface ApiService {
     // Para crear un cliente
     @POST("apiDesubicados/Clientes")
     fun createCliente(@Body cliente: Cliente): Call<Void>
+
+    // RELOJES
+
+    //Para obtener todos los relojes
+    @GET("apiDesubicados/Relojes")
+    fun getRelojes(): Call<List<Cliente>>
 
 }

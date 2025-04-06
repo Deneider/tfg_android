@@ -19,11 +19,13 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(onLogin: (String, String) -> Unit) {
     var correo by remember { mutableStateOf(TextFieldValue("")) }
     var contrasena by remember { mutableStateOf(TextFieldValue("")) }
 
+    // ANIMACIÓN de opacidad para el logo
     val transition = rememberInfiniteTransition()
     val animationValue by transition.animateFloat(
         initialValue = 0f,
@@ -43,7 +45,8 @@ fun LoginScreen(onLogin: (String, String) -> Unit) {
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Black)
-            .padding(16.dp),
+            .padding(16.dp)
+            .imePadding(),  // Para que el teclado no tape los campos
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -51,10 +54,10 @@ fun LoginScreen(onLogin: (String, String) -> Unit) {
             modifier = Modifier
                 .size(100.dp)
                 .background(Color.White, shape = CircleShape)
-                .alpha(animationValue)
+                .alpha(animationValue) // Aplicamos la animación aquí
         ) {
             Image(
-                painter = painterResource(id = R.drawable.logo4), // Asegúrate de tener el logo en los recursos
+                painter = painterResource(id = R.drawable.logo4),
                 contentDescription = "Logo",
                 modifier = Modifier
                     .size(80.dp)
@@ -72,9 +75,17 @@ fun LoginScreen(onLogin: (String, String) -> Unit) {
             value = correo,
             onValueChange = { correo = it },
             modifier = Modifier.fillMaxWidth(),
-            label = { Text("Correo electrónico") },
+            label = { Text("Correo electrónico", color = Color.White) },
             singleLine = true,
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                focusedTextColor = Color.White,
+                cursorColor = Color.White,
+                focusedBorderColor = Color.White,
+                unfocusedBorderColor = Color.White,
+                focusedLabelColor = Color.White,
+                unfocusedLabelColor = Color.White
+            )
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -83,10 +94,18 @@ fun LoginScreen(onLogin: (String, String) -> Unit) {
             value = contrasena,
             onValueChange = { contrasena = it },
             modifier = Modifier.fillMaxWidth(),
-            label = { Text("Contraseña") },
+            label = { Text("Contraseña", color = Color.White) },
             singleLine = true,
             visualTransformation = PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done)
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                focusedTextColor = Color.White,
+                cursorColor = Color.White,
+                focusedBorderColor = Color.White,
+                unfocusedBorderColor = Color.White,
+                focusedLabelColor = Color.White,
+                unfocusedLabelColor = Color.White
+            )
         )
 
         Spacer(modifier = Modifier.height(16.dp))

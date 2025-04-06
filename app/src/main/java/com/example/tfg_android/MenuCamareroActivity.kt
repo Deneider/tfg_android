@@ -2,45 +2,46 @@ package com.example.tfg_android
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.Image
+import androidx.annotation.RequiresApi
+
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+
+import androidx.compose.material.BottomNavigation
+import androidx.compose.material.BottomNavigationItem
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import com.example.tfg_android.ui.theme.Tfg_androidTheme
 
 class MenuCamareroActivity : ComponentActivity() {
+
+    @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         // Recuperamos el nombre del usuario desde SharedPreferences
         val sharedPreferences: SharedPreferences = getSharedPreferences("user_data", Context.MODE_PRIVATE)
-        val nombreUsuario = sharedPreferences.getString("username", "Usuario desconocido")  // Default value in case no username is found
+        val nombreUsuario = sharedPreferences.getString("username", "Usuario desconocido") ?: "Usuario desconocido"
 
         // Configuramos el contenido de la actividad
         setContent {
             Tfg_androidTheme {
-                MenuCamareroScreen(nombreUsuario = nombreUsuario ?: "Usuario desconocido")
+                MenuCamareroScreen(nombreUsuario = nombreUsuario)
             }
         }
     }
@@ -48,7 +49,170 @@ class MenuCamareroActivity : ComponentActivity() {
 
 @Composable
 fun MenuCamareroScreen(nombreUsuario: String) {
+    // Usar NavController para gestionar la navegación
+    val navController = rememberNavController()
 
+    // Establecer la vista principal con Scaffold para la barra de navegación inferior
+    Scaffold(
+        bottomBar = {
+            CamareroBottomNavigationBar(navController = navController)
+        }
+    ) { paddingValues ->
+        // Contenido principal
+        Box(modifier = Modifier.padding(paddingValues)) {
+            // Composable que gestiona las pantallas
+            NavHost(navController = navController, startDestination = "perfil") {
+                composable("perfil") {
+                    CamareroPerfilScreen(nombreUsuario = nombreUsuario)
+                }
+                composable("relojes") {
+                    CamareroRelojesScreen()
+                }
+                composable("clientes") {
+                    CamareroClientesScreen()
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun CamareroBottomNavigationBar(navController: NavHostController) {
+    BottomNavigation(
+        backgroundColor = Color(0xFF121212),
+        contentColor = Color.White,
+        elevation = 8.dp
+    ) {
+        BottomNavigationItem(
+            selected = false, // Cambiar a un estado si es necesario para mostrar la selección
+            onClick = { navController.navigate("relojes") },
+            icon = {
+                Icon(
+                    painter = painterResource(id = R.drawable.du_asociar),
+                    contentDescription = "Relojes",
+                    tint = Color.White,
+                    modifier = Modifier.size(50.dp) // Íconos más grandes
+                )
+            },
+            label = { Text("Relojes", color = Color.White, fontSize = 18.sp) }, // Texto más grande
+            selectedContentColor = Color(0xFF24BDFF),
+            unselectedContentColor = Color.Gray
+        )
+        BottomNavigationItem(
+            selected = false,
+            onClick = { navController.navigate("clientes") },
+            icon = {
+                Icon(
+                    painter = painterResource(id = R.drawable.clientes),
+                    contentDescription = "Clientes",
+                    tint = Color.White,
+                    modifier = Modifier.size(50.dp) // Íconos más grandes
+                )
+            },
+            label = { Text("Clientes", color = Color.White, fontSize = 18.sp) }, // Texto más grande
+            selectedContentColor = Color(0xFF24BDFF),
+            unselectedContentColor = Color.Gray
+        )
+        BottomNavigationItem(
+            selected = false,
+            onClick = { navController.navigate("perfil") },
+            icon = {
+                Icon(
+                    painter = painterResource(id = R.drawable.usuario),
+                    contentDescription = "Perfil",
+                    tint = Color.White,
+                    modifier = Modifier.size(50.dp) // Íconos más grandes
+                )
+            },
+            label = { Text("Perfil", color = Color.White, fontSize = 18.sp) }, // Texto más grande
+            selectedContentColor = Color(0xFF24BDFF),
+            unselectedContentColor = Color.Gray
+        )
+    }
+}
+
+
+//  1.  RELOJES
+@Composable
+fun CamareroRelojesScreen() {
+    var opcionSeleccionada by remember { mutableStateOf("MenuCamarero") }
+
+    when (opcionSeleccionada) {
+        "MenuCamarero" -> {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black)
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Top
+            ) {
+                Text(
+                    text = "Pantalla de Relojes",
+                    color = Color.White,
+                    fontSize = 24.sp,
+                    modifier = Modifier.padding(vertical = 16.dp)
+                )
+
+                Button(
+                    onClick = { opcionSeleccionada = "AsociarReloj" },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF24BDFF))
+                ) {
+                    Text(text = "Vincular reloj", color = Color.White)
+                }
+            }
+        }
+
+        "AsociarReloj" -> {
+            CamareroAsociarReloj {
+                opcionSeleccionada = "MenuCamarero"
+            }
+        }
+
+        // Puedes agregar más casos aquí si hace falta
+    }
+}
+
+@Composable
+fun CamareroAsociarReloj(onBack: () -> Unit){
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black)
+            .padding(16.dp)
+            .imePadding()
+    ) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            item {
+                Text(
+                    "Asociar Reloj a cliente con QR",
+                    color = Color.White,
+                    fontSize = 20.sp,
+                    modifier = Modifier.padding(16.dp)
+                )
+
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(
+                    onClick = { onBack() },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+                ) {
+                    Text("ESCANEAR QR", color = Color.White)
+                }
+            }
+        }
+    }
+}
+// 2.   CLIENTES
+@Composable
+fun CamareroClientesScreen() {
+    // Aquí va la interfaz de la pantalla de Clientes
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -57,44 +221,22 @@ fun MenuCamareroScreen(nombreUsuario: String) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Box(
-            modifier = Modifier
-                .size(100.dp)
-                .background(Color.White, shape = CircleShape)
+        Text(text = "Pantalla de Clientes", color = Color.White, fontSize = 24.sp) // Texto más grande
+    }
+}
 
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.logo4), // Asegúrate de tener el logo en los recursos
-                contentDescription = "Logo",
-                modifier = Modifier
-                    .size(80.dp)
-                    .align(Alignment.Center)
-            )
-        }
-
-        Spacer(modifier = Modifier.height(40.dp))
-
-        Text(
-            text = "¡Hola, $nombreUsuario!",
-            color = Color.White,
-            fontSize = 24.sp,
-            modifier = Modifier.padding(16.dp)
-        )
-
-        Spacer(modifier = Modifier.height(40.dp))
-
-        Button(
-            onClick = {
-                // Aquí puedes agregar la funcionalidad de lo que deseas hacer después del clic
-            },
-            modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF24BDFF))
-        ) {
-            Text(text = "Acción del Camarero", color = Color.White)
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Aquí puedes agregar otros botones o elementos según lo que necesites mostrar
+//  3. PERFIL
+@Composable
+fun CamareroPerfilScreen(nombreUsuario: String) {
+    // Aquí va la interfaz de la pantalla de Perfil
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black)
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(text = "Perfil de $nombreUsuario", color = Color.White, fontSize = 24.sp) // Texto más grande
     }
 }

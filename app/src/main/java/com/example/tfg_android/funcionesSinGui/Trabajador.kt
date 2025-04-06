@@ -1,7 +1,7 @@
-package com.example.tfg_android
+package com.example.tfg_android.funcionesSinGui
 
-data class Cliente (
-    val id_cliente: Int,
+data class Trabajador(
+    val id_trabajador: Int,
     val nombre: String,
     val primer_apellido: String,
     val segundo_apellido: String,
@@ -13,7 +13,7 @@ data class Cliente (
     val provincia: String,
     val cod_postal: String,
     val nacionalidad: String,
-    val puntos: Int,
     val correo: String,
-    val contrasena: String
+    val contrasena: String,
+    val puesto: String
 )
