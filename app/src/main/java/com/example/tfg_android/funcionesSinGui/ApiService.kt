@@ -44,4 +44,18 @@ interface ApiService {
     @GET("apiDesubicados/Relojes")
     fun getRelojes(): Call<List<Cliente>>
 
+    //Clientes_Relojes
+    @POST("apiDesubicados/asignar_reloj")
+    fun asignarReloj(
+        @Query("id_cliente") idCliente: Int,
+        @Query("id_reloj") idReloj: String
+    ): Call<ApiResponse>
+
+    @POST("apiDesubicados/desasignar_reloj")
+    fun desasignarReloj(
+        @Query("id_cliente") idCliente: Int,
+        @Query("id_reloj") idReloj: String
+    ): Call<ApiResponse>
+
+
 }

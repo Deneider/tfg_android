@@ -3,6 +3,7 @@ import android.app.Activity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -16,6 +17,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,11 +34,15 @@ import com.google.zxing.integration.android.IntentIntegrator
 // Escanear QR
 
 @Composable
-fun EscanearQR(onBack: () -> Unit) {
+fun EscanearQR(
+    onMacScanned: (String) -> Unit,
+    onBack: () -> Unit
+) {
     val context = LocalContext.current
     val activity = context as? Activity
+    var scannedMac by remember { mutableStateOf<String?>(null) }
+    var hasLaunched by remember { mutableStateOf(false) }
 
-    // Usamos rememberLauncherForActivityResult para manejar el resultado
     val qrResultLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -44,12 +50,15 @@ fun EscanearQR(onBack: () -> Unit) {
             val data = result.data
             val scanContent = data?.getStringExtra("SCAN_RESULT")
             scanContent?.let {
-                println("Resultado del escaneo QR: $it") // Procesa el resultado aquí
+                println("Resultado del escaneo QR (MAC): $it")
+                scannedMac = it
+                onMacScanned(it) // Enviamos la MAC al padre para asociarla
             }
+        } else {
+            onBack() // Si se cancela el escaneo, volvemos
         }
     }
 
-    // Lanzar el escáner de código QR
     val startQRScanner = {
         val integrator = IntentIntegrator(activity)
         integrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE)
@@ -57,31 +66,65 @@ fun EscanearQR(onBack: () -> Unit) {
         integrator.setBeepEnabled(true)
         integrator.setBarcodeImageEnabled(true)
         val intent = integrator.createScanIntent()
-        qrResultLauncher.launch(intent) // Inicia el escaneo
+        qrResultLauncher.launch(intent)
     }
 
-    // Composición de los botones
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        // Botón para iniciar el escaneo
-        Button(onClick = { startQRScanner() }, modifier = Modifier.padding(16.dp)) {
-            Text("Escanear QR")
+    // Lanzar escáner al entrar en la pantalla
+    LaunchedEffect(Unit) {
+        if (!hasLaunched) {
+            hasLaunched = true
+            startQRScanner()
         }
+    }
 
-        // Botón para regresar
-        Button(onClick = onBack, modifier = Modifier.padding(16.dp)) {
-            Text("Volver")
+    // Puedes mostrar algo mientras se escanea o si falla
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black)
+            .padding(16.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text("Esperando escaneo...", color = Color.White)
+
+            scannedMac?.let {
+                Spacer(modifier = Modifier.height(16.dp))
+                Text("MAC Escaneada: $it", color = Color.Green)
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Button(
+                onClick = onBack,
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+            ) {
+                Text("Volver", color = Color.White)
+            }
         }
     }
 }
+
+
 
 //  1.1 asociar relojes
 @Composable
 fun AsociarReloj(onBack: () -> Unit) {
     var isScanningQR by remember { mutableStateOf(false) }
+    var macEscaneada by remember { mutableStateOf<String?>(null) }
 
-    // Si estamos en la pantalla de escanear, mostramos EscanearQR
     if (isScanningQR) {
-        EscanearQR(onBack = { isScanningQR = false }) // Pasamos el cambio de estado al regresar
+        EscanearQR(
+            onMacScanned = {
+                macEscaneada = it
+                isScanningQR = false // Volver a la pantalla de asociación
+            },
+            onBack = { isScanningQR = false }
+        )
     } else {
         Box(
             modifier = Modifier
@@ -102,20 +145,36 @@ fun AsociarReloj(onBack: () -> Unit) {
                         modifier = Modifier.padding(16.dp)
                     )
 
+                    macEscaneada?.let {
+                        Text("MAC asociada: $it", color = Color.Green)
+                        // Aquí puedes hacer la lógica para asociar ese reloj a un cliente
+                    }
+
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Button(
-                        onClick = { isScanningQR = true }, // Cambiar el estado para mostrar EscanearQR
+                        onClick = { isScanningQR = true },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF24BDFF))
+                    ) {
+                        Text("ESCANEAR QR", color = Color.White)
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Button(
+                        onClick = onBack,
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
                     ) {
-                        Text("ESCANEAR QR", color = Color.White)
+                        Text("Volver", color = Color.White)
                     }
                 }
             }
         }
     }
 }
+
 
 
 @Composable
