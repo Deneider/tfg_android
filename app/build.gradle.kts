@@ -68,6 +68,17 @@ dependencies {
     implementation(libs.androidx.espresso.core)
     implementation(libs.androidx.animation.core.lint)
     implementation("androidx.compose.material:material:1.4.0")
+    implementation(libs.androidx.camera.lifecycle)
+    implementation ("com.google.mlkit:barcode-scanning:17.0.0")
+    implementation(libs.androidx.camera.view)
+    implementation(libs.androidx.constraintlayout)
+
+    //Escanear qr
+    //implementation ("com.journeyapps:zxing-android-embedded:3.2.0")
+    //implementation ("com.google.zxing:core:3.3.0")
+
+    implementation ("com.journeyapps:zxing-android-embedded:4.3.0")
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

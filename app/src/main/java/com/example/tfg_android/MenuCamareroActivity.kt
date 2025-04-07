@@ -26,6 +26,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.tfg_android.pantallas.AltaClienteScreen
+import com.example.tfg_android.pantallas.AsociarReloj
+import com.example.tfg_android.pantallas.BorrarClienteScreen
+import com.example.tfg_android.pantallas.DesAsociarReloj
+import com.example.tfg_android.pantallas.ModificarClienteScreen
 import com.example.tfg_android.ui.theme.Tfg_androidTheme
 
 class MenuCamareroActivity : ComponentActivity() {
@@ -165,63 +170,88 @@ fun CamareroRelojesScreen() {
         }
 
         "AsociarReloj" -> {
-            CamareroAsociarReloj {
+            AsociarReloj {
+                opcionSeleccionada = "MenuCamarero"
+            }
+        }
+        "DesAsociarReloj" -> {
+            DesAsociarReloj{
                 opcionSeleccionada = "MenuCamarero"
             }
         }
 
-        // Puedes agregar más casos aquí si hace falta
     }
 }
 
-@Composable
-fun CamareroAsociarReloj(onBack: () -> Unit){
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Black)
-            .padding(16.dp)
-            .imePadding()
-    ) {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            item {
-                Text(
-                    "Asociar Reloj a cliente con QR",
-                    color = Color.White,
-                    fontSize = 20.sp,
-                    modifier = Modifier.padding(16.dp)
-                )
-
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Button(
-                    onClick = { onBack() },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
-                ) {
-                    Text("ESCANEAR QR", color = Color.White)
-                }
-            }
-        }
-    }
-}
 // 2.   CLIENTES
 @Composable
 fun CamareroClientesScreen() {
-    // Aquí va la interfaz de la pantalla de Clientes
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Black)
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(text = "Pantalla de Clientes", color = Color.White, fontSize = 24.sp) // Texto más grande
+    var opcionSeleccionada by remember { mutableStateOf("MenuCamarero") }
+
+    when (opcionSeleccionada) {
+        "MenuCamarero" -> {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black)
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Top
+            ) {
+                Text(
+                    text = "Pantalla Clientes",
+                    color = Color.White,
+                    fontSize = 24.sp,
+                    modifier = Modifier.padding(vertical = 16.dp)
+                )
+
+                Button(
+                    onClick = { opcionSeleccionada = "CrearCliente" },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF24BDFF))
+                ) {
+                    Text(text = "Crear Cliente", color = Color.White)
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Button(
+                    onClick = { opcionSeleccionada = "ModificarCliente" },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFC107)) // Amarillo
+                ) {
+                    Text(text = "Modificar Cliente", color = Color.Black)
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Button(
+                    onClick = { opcionSeleccionada = "BorrarCliente" },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+                ) {
+                    Text(text = "Borrar Cliente", color = Color.White)
+                }
+            }
+        }
+
+        "CrearCliente" -> {
+            AltaClienteScreen {
+                opcionSeleccionada = "MenuCamarero"
+            }
+        }
+
+        "ModificarCliente" -> {
+            ModificarClienteScreen {
+                opcionSeleccionada = "MenuCamarero"
+            }
+        }
+
+        "BorrarCliente" -> {
+            BorrarClienteScreen {
+                opcionSeleccionada = "MenuCamarero"
+            }
+        }
     }
 }
 

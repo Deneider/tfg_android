@@ -26,9 +26,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.tfg_android.pantallas.AltaClienteScreen
 import com.example.tfg_android.pantallas.AltaEmpleadoScreen
+import com.example.tfg_android.pantallas.AsociarReloj
 import com.example.tfg_android.pantallas.BorrarClienteScreen
 import com.example.tfg_android.pantallas.BorrarEmpleadoScreen
-import com.example.tfg_android.pantallas.JefeAsociarReloj
+import com.example.tfg_android.pantallas.DesAsociarReloj
 import com.example.tfg_android.pantallas.ModificarClienteScreen
 import com.example.tfg_android.pantallas.ModificarEmpleadoScreen
 import com.example.tfg_android.ui.theme.Tfg_androidTheme
@@ -186,18 +187,29 @@ fun JefeRelojesScreen() {
                 ) {
                     Text(text = "Vincular reloj", color = Color.White)
                 }
+                Button(
+                    onClick = { opcionSeleccionada = "DesAsociarReloj" },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF24BDFF))
+                ){
+                    Text(text = "Desvincular reloj", color = Color.White)
+                }
             }
         }
 
         "AsociarReloj" -> {
-            JefeAsociarReloj {
+            AsociarReloj {
+                opcionSeleccionada = "MenuJefe"
+            }
+        }
+        "DesAsociarReloj" -> {
+            DesAsociarReloj{
                 opcionSeleccionada = "MenuJefe"
             }
         }
 
     }
 }
-
 
 // 2.   CLIENTES
 @Composable
