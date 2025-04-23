@@ -22,6 +22,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,6 +35,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.tfg_android.funcionesSinGui.ApiService
+import com.example.tfg_android.funcionesSinGui.ColoresFormularios
 import com.example.tfg_android.funcionesSinGui.RetrofitClient
 import com.example.tfg_android.funcionesSinGui.Trabajador
 import retrofit2.Call
@@ -41,6 +43,7 @@ import retrofit2.Response
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -96,21 +99,24 @@ fun AltaEmpleadoScreen(onBack: () -> Unit) {
                     value = nombre,
                     onValueChange = { nombre = it },
                     label = { Text("Nombre") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ColoresFormularios.textoBlanco()
                 )
 
                 OutlinedTextField(
                     value = apellido1,
                     onValueChange = { apellido1 = it },
                     label = { Text("Primer Apellido") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ColoresFormularios.textoBlanco()
                 )
 
                 OutlinedTextField(
                     value = apellido2,
                     onValueChange = { apellido2 = it },
                     label = { Text("Segundo Apellido") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ColoresFormularios.textoBlanco()
                 )
 
                 // Estado para abrir el DatePicker
@@ -145,57 +151,66 @@ fun AltaEmpleadoScreen(onBack: () -> Unit) {
                     value = dni,
                     onValueChange = {dni = it},
                     label = { Text("Dni") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ColoresFormularios.textoBlanco()
                 )
 
                 OutlinedTextField(
                     value = calle,
                     onValueChange = {calle = it},
                     label = { Text("Calle") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ColoresFormularios.textoBlanco()
                 )
 
                 OutlinedTextField(
                     value = numero_casa,
                     onValueChange = {numero_casa = it},
                     label = { Text("Numero casa") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ColoresFormularios.textoBlanco()
                 )
                 OutlinedTextField(
                     value = localidad,
                     onValueChange = {localidad = it},
                     label = { Text("Localidad") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ColoresFormularios.textoBlanco()
                 )
                 OutlinedTextField(
                     value = provincia,
                     onValueChange = {provincia = it},
                     label = { Text("Provincia") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ColoresFormularios.textoBlanco()
                 )
                 OutlinedTextField(
                     value = cod_postal,
                     onValueChange = {cod_postal = it},
                     label = { Text("Codigo postal") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ColoresFormularios.textoBlanco()
                 )
                 OutlinedTextField(
                     value = nacionalidad,
                     onValueChange = {nacionalidad = it},
                     label = { Text("Nacionalidad") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ColoresFormularios.textoBlanco()
                 )
                 OutlinedTextField(
                     value = correo,
                     onValueChange = { correo = it },
                     label = { Text("Correo") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ColoresFormularios.textoBlanco()
                 )
                 OutlinedTextField(
                     value = contrasena,
                     onValueChange = {contrasena = it},
                     label = { Text("Contraseña") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ColoresFormularios.textoBlanco()
                 )
 
                 // Dropdown para seleccionar el puesto
@@ -214,7 +229,7 @@ fun AltaEmpleadoScreen(onBack: () -> Unit) {
                         expanded = expanded,
                         onDismissRequest = { expanded = false }
                     ) {
-                        listOf("Camarero", "Jefe", "Cocinero").forEach { role ->
+                        listOf("camarero", "jefe", "cocinero").forEach { role ->
                             DropdownMenuItem(
                                 text = { Text(role) },
                                 onClick = {

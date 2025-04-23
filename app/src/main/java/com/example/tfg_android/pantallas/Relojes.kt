@@ -16,8 +16,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -32,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.tfg_android.funcionesSinGui.ApiResponse
 import com.example.tfg_android.funcionesSinGui.Cliente
+import com.example.tfg_android.funcionesSinGui.ColoresFormularios
 import com.example.tfg_android.funcionesSinGui.RetrofitClient
 import com.google.zxing.integration.android.IntentIntegrator
 import retrofit2.Call
@@ -120,6 +123,7 @@ fun EscanearQR(
 
 
 //  1.1 asociar relojes
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AsociarReloj(onBack: () -> Unit) {
     var isScanningQR by remember { mutableStateOf(false) }
@@ -163,7 +167,9 @@ fun AsociarReloj(onBack: () -> Unit) {
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 8.dp),
-                        singleLine = true
+                        singleLine = true,
+                        colors = ColoresFormularios.textoBlanco()
+
                     )
 
                     macEscaneada?.let {
@@ -247,10 +253,11 @@ fun asociarReloj(
                                 // Comprobamos la respuesta correctamente
                                 val apiResponse = response.body()
                                 if (apiResponse != null && apiResponse.message == "Reloj asignado correctamente al cliente") {
-                                    onResultado("Error al asociar reloj: ${apiResponse?.message ?: "Desconocido"}")
+                                    onResultado("Reloj asociado con éxito")
                                 } else {
-                                    onResultado(" Reloj asociado con éxito ")
+                                    onResultado("Error al asociar reloj: ${apiResponse?.message ?: "Desconocido"}")
                                 }
+
                             } else {
                                 onResultado("Error al asociar reloj: ${response.message()}")
                             }
@@ -276,6 +283,7 @@ fun asociarReloj(
 
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DesAsociarReloj(onBack: () -> Unit) {
     var isScanningQR by remember { mutableStateOf(false) }
@@ -320,7 +328,16 @@ fun DesAsociarReloj(onBack: () -> Unit) {
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 8.dp),
-                        singleLine = true
+                        singleLine = true,
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.White,
+                            cursorColor = Color.White,
+                            focusedBorderColor = Color.White,
+                            unfocusedBorderColor = Color.White,
+                            focusedLabelColor = Color.White,
+                            unfocusedLabelColor = Color.White
+                        )
                     )
 
                     macEscaneada?.let {

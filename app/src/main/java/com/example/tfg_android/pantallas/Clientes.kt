@@ -1,5 +1,6 @@
 package com.example.tfg_android.pantallas
 
+import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -29,10 +30,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.tfg_android.funcionesSinGui.ApiResponse
 import com.example.tfg_android.funcionesSinGui.ApiService
 import com.example.tfg_android.funcionesSinGui.Cliente
+import com.example.tfg_android.funcionesSinGui.ColoresFormularios
 import com.example.tfg_android.funcionesSinGui.RetrofitClient
+import okhttp3.ResponseBody
 import retrofit2.Call
+import retrofit2.Callback
 import retrofit2.Response
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -40,7 +45,7 @@ import java.util.Locale
 
 // 2.1  alta cliente
 @Composable
-fun AltaClienteScreen(onBack: () -> Unit){
+fun AltaClienteScreen(onBack: () -> Unit) {
     val context = LocalContext.current
 
     // Estados para los campos de entrada
@@ -91,28 +96,33 @@ fun AltaClienteScreen(onBack: () -> Unit){
                     value = nombre,
                     onValueChange = { nombre = it },
                     label = { Text("Nombre") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ColoresFormularios.textoBlanco()
                 )
 
                 OutlinedTextField(
                     value = apellido1,
                     onValueChange = { apellido1 = it },
                     label = { Text("Primer Apellido") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ColoresFormularios.textoBlanco()
                 )
 
                 OutlinedTextField(
                     value = apellido2,
                     onValueChange = { apellido2 = it },
                     label = { Text("Segundo Apellido") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ColoresFormularios.textoBlanco()
                 )
+
                 // Fecha de nacimiento con DatePicker
                 OutlinedTextField(
                     value = fechaNacimiento,
                     onValueChange = {},
                     label = { Text("Fecha de Nacimiento") },
                     readOnly = true,
+                    colors = ColoresFormularios.textoBlanco(),
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable { isDatePickerOpen = true }
@@ -136,69 +146,83 @@ fun AltaClienteScreen(onBack: () -> Unit){
 
                 OutlinedTextField(
                     value = dni,
-                    onValueChange = {dni = it},
-                    label = { Text("Dni") },
-                    modifier = Modifier.fillMaxWidth()
+                    onValueChange = { dni = it },
+                    label = { Text("DNI") },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ColoresFormularios.textoBlanco()
                 )
 
                 OutlinedTextField(
                     value = calle,
-                    onValueChange = {calle = it},
+                    onValueChange = { calle = it },
                     label = { Text("Calle") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ColoresFormularios.textoBlanco()
                 )
 
                 OutlinedTextField(
                     value = numero_casa,
-                    onValueChange = {numero_casa = it},
-                    label = { Text("Numero casa") },
-                    modifier = Modifier.fillMaxWidth()
+                    onValueChange = { numero_casa = it },
+                    label = { Text("Número Casa") },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ColoresFormularios.textoBlanco()
                 )
+
                 OutlinedTextField(
                     value = localidad,
-                    onValueChange = {localidad = it},
+                    onValueChange = { localidad = it },
                     label = { Text("Localidad") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ColoresFormularios.textoBlanco()
                 )
+
                 OutlinedTextField(
                     value = provincia,
-                    onValueChange = {provincia = it},
+                    onValueChange = { provincia = it },
                     label = { Text("Provincia") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ColoresFormularios.textoBlanco()
                 )
+
                 OutlinedTextField(
                     value = cod_postal,
-                    onValueChange = {cod_postal = it},
-                    label = { Text("Codigo postal") },
-                    modifier = Modifier.fillMaxWidth()
+                    onValueChange = { cod_postal = it },
+                    label = { Text("Código Postal") },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ColoresFormularios.textoBlanco()
                 )
+
                 OutlinedTextField(
                     value = nacionalidad,
-                    onValueChange = {nacionalidad = it},
+                    onValueChange = { nacionalidad = it },
                     label = { Text("Nacionalidad") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ColoresFormularios.textoBlanco()
                 )
+
                 OutlinedTextField(
                     value = correo,
                     onValueChange = { correo = it },
                     label = { Text("Correo") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ColoresFormularios.textoBlanco()
                 )
+
                 OutlinedTextField(
                     value = contrasena,
-                    onValueChange = {contrasena = it},
+                    onValueChange = { contrasena = it },
                     label = { Text("Contraseña") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ColoresFormularios.textoBlanco()
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-
                 Button(
                     onClick = {
                         if (nombre.isBlank() || apellido1.isBlank() || apellido2.isBlank() || fechaNacimiento.isBlank() ||
-                            dni.isBlank()|| calle.isBlank() || numero_casa.isBlank() || localidad.isBlank() || provincia.isBlank() || cod_postal.isBlank() ||
-                            nacionalidad.isBlank() || correo.isBlank() || contrasena.isBlank() ){
+                            dni.isBlank() || calle.isBlank() || numero_casa.isBlank() || localidad.isBlank() || provincia.isBlank() ||
+                            cod_postal.isBlank() || nacionalidad.isBlank() || correo.isBlank() || contrasena.isBlank()) {
 
                             Toast.makeText(context, "Todos los campos son obligatorios", Toast.LENGTH_SHORT).show()
                             return@Button
@@ -218,18 +242,19 @@ fun AltaClienteScreen(onBack: () -> Unit){
                             provincia = provincia,
                             cod_postal = cod_postal,
                             nacionalidad = nacionalidad,
-                            correo = correo,
                             puntos = 0,
-                            contrasena = contrasena,
+                            correo = correo,
+                            contrasena = contrasena
                         )
 
                         apiService.createCliente(nuevoCliente).enqueue(object : retrofit2.Callback<Void> {
                             override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                                isLoading = false
                                 if (response.isSuccessful) {
                                     Toast.makeText(context, "Cliente creado con éxito", Toast.LENGTH_SHORT).show()
                                     onBack()
                                 } else {
-                                    Toast.makeText(context, "Error en el registro", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "Error en el registro: ${response.message()}", Toast.LENGTH_SHORT).show()
                                 }
                             }
                             override fun onFailure(call: Call<Void>, t: Throwable) {
@@ -262,6 +287,7 @@ fun AltaClienteScreen(onBack: () -> Unit){
         }
     }
 }
+
 // 2.2  modificar cliente
 @Composable
 fun ModificarClienteScreen(onBack: () -> Unit) {
@@ -300,7 +326,12 @@ fun ModificarClienteScreen(onBack: () -> Unit) {
 }
 // 2.3  borrar cliente
 @Composable
-fun BorrarClienteScreen (onBack: () -> Unit){
+fun BorrarClienteScreen(onBack: () -> Unit) {
+    var inputCorreoODni by remember { mutableStateOf("") }
+    var mensaje by remember { mutableStateOf("") }
+
+    val context = LocalContext.current
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -320,17 +351,94 @@ fun BorrarClienteScreen (onBack: () -> Unit){
                     modifier = Modifier.padding(16.dp)
                 )
 
+                OutlinedTextField(
+                    value = inputCorreoODni,
+                    onValueChange = { inputCorreoODni = it },
+                    label = { Text("Correo o DNI del cliente") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    singleLine = true,
+                    colors = ColoresFormularios.textoBlanco()
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Button(
+                    onClick = {
+                        borrarCliente(context, inputCorreoODni) { resultado ->
+                            mensaje = resultado
+                        }
+                    },
+                    enabled = inputCorreoODni.isNotBlank(),
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+                ) {
+                    Text("BORRAR CLIENTE", color = Color.White)
+                }
+
+                if (mensaje.isNotBlank()) {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(mensaje, color = Color.Yellow)
+                }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Button(
-                    onClick = { onBack() },
+                    onClick = onBack,
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Gray)
                 ) {
                     Text("Volver", color = Color.White)
                 }
             }
         }
     }
+}
+fun borrarCliente(
+    context: Context,
+    correoODni: String,
+    onResultado: (String) -> Unit
+) {
+    val api = RetrofitClient.apiService
+
+    val callBuscar = if (correoODni.contains("@")) {
+        api.getClienteByCorreo(correoODni)
+    } else {
+        api.getClienteByDni(correoODni)
+    }
+
+    callBuscar.enqueue(object : Callback<Cliente> {
+        override fun onResponse(call: Call<Cliente>, response: Response<Cliente>) {
+            if (response.isSuccessful) {
+                val cliente = response.body()
+                if (cliente != null) {
+                    val callBorrar = api.deleteCliente(cliente.id_cliente.toString())
+                    callBorrar.enqueue(object : Callback<ResponseBody> {
+                        override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                            if (response.isSuccessful) {
+                                val mensajeRespuesta = response.body()?.string() ?: "Cliente eliminado correctamente"
+                                onResultado("Cliente eliminado correctamente: $mensajeRespuesta")
+                            } else {
+                                onResultado("Error al eliminar cliente: ${response.message()}")
+                            }
+                        }
+
+                        override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                            onResultado("Fallo al eliminar cliente: ${t.message}")
+                        }
+                    })
+
+                } else {
+                    onResultado("Cliente no encontrado.")
+                }
+            } else {
+                onResultado("Error al buscar cliente.")
+            }
+        }
+
+        override fun onFailure(call: Call<Cliente>, t: Throwable) {
+            onResultado("Fallo al buscar cliente: ${t.message}")
+        }
+    })
 }

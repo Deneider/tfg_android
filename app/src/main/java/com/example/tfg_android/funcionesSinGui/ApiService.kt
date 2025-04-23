@@ -1,5 +1,6 @@
 package com.example.tfg_android.funcionesSinGui
 
+import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -24,6 +25,9 @@ interface ApiService {
     fun createTrabajador(@Body trabajador: Trabajador): Call<Void>
 
 
+    @DELETE("apiDesubicados/Trabajadores/borrar/")
+    fun deleteTrabajador(
+        @Query("id_trabajador") idTrabajador: Int): Call<ResponseBody>
 
     // CLIENTE
 
@@ -41,6 +45,11 @@ interface ApiService {
     // Para crear un cliente
     @POST("apiDesubicados/Clientes")
     fun createCliente(@Body cliente: Cliente): Call<Void>
+
+    @DELETE("apiDesubicados/Clientes/borrar/")
+    fun deleteCliente(
+        @Query("id_cliente") idCliente: String
+    ): Call<ResponseBody>
 
     // RELOJES
 

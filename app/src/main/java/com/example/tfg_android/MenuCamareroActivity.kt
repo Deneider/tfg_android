@@ -166,6 +166,14 @@ fun CamareroRelojesScreen() {
                 ) {
                     Text(text = "Vincular reloj", color = Color.White)
                 }
+
+                Button(
+                    onClick = {opcionSeleccionada = "DesAsociarReloj"},
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF24BDFF))
+                ){
+                    Text(text = "Desvincular reloj", color = Color.White)
+                }
             }
         }
 
@@ -224,14 +232,14 @@ fun CamareroClientesScreen() {
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
-
+                /*
                 Button(
                     onClick = { opcionSeleccionada = "BorrarCliente" },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
                 ) {
                     Text(text = "Borrar Cliente", color = Color.White)
-                }
+                }*/
             }
         }
 
@@ -246,12 +254,13 @@ fun CamareroClientesScreen() {
                 opcionSeleccionada = "MenuCamarero"
             }
         }
-
+        /*
         "BorrarCliente" -> {
             BorrarClienteScreen {
                 opcionSeleccionada = "MenuCamarero"
             }
         }
+         */
     }
 }
 

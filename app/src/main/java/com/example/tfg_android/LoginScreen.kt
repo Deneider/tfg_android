@@ -18,6 +18,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.tfg_android.funcionesSinGui.ColoresFormularios
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -78,14 +79,7 @@ fun LoginScreen(onLogin: (String, String) -> Unit) {
             label = { Text("Correo electrónico", color = Color.White) },
             singleLine = true,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                focusedTextColor = Color.White,
-                cursorColor = Color.White,
-                focusedBorderColor = Color.White,
-                unfocusedBorderColor = Color.White,
-                focusedLabelColor = Color.White,
-                unfocusedLabelColor = Color.White
-            )
+            colors = ColoresFormularios.textoBlanco()
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -98,14 +92,7 @@ fun LoginScreen(onLogin: (String, String) -> Unit) {
             singleLine = true,
             visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                focusedTextColor = Color.White,
-                cursorColor = Color.White,
-                focusedBorderColor = Color.White,
-                unfocusedBorderColor = Color.White,
-                focusedLabelColor = Color.White,
-                unfocusedLabelColor = Color.White
-            )
+            colors = ColoresFormularios.textoBlanco()
         )
 
         Spacer(modifier = Modifier.height(16.dp))
