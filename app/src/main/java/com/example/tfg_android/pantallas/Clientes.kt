@@ -5,6 +5,7 @@ import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,6 +14,8 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -291,39 +294,151 @@ fun AltaClienteScreen(onBack: () -> Unit) {
 // 2.2  modificar cliente
 @Composable
 fun ModificarClienteScreen(onBack: () -> Unit) {
-    Box(
+    val context = LocalContext.current
+    val apiService = RetrofitClient.retrofitInstance.create(ApiService::class.java)
+
+    var correoBusqueda by remember { mutableStateOf("") }
+    var clienteActual by remember { mutableStateOf<Cliente?>(null) }
+    var isLoading by remember { mutableStateOf(false) }
+
+    // Función para cargar el cliente por correo
+    fun cargarClientePorCorreo(correo: String) {
+        isLoading = true
+        apiService.getClienteByCorreo(correo).enqueue(object : Callback<Cliente> {
+            override fun onResponse(call: Call<Cliente>, response: Response<Cliente>) {
+                isLoading = false
+                if (response.isSuccessful) {
+                    clienteActual = response.body()
+                } else {
+                    Toast.makeText(context, "Cliente no encontrado", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onFailure(call: Call<Cliente>, t: Throwable) {
+                isLoading = false
+                Toast.makeText(context, "Error de conexión: ${t.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    // Función para actualizar el cliente
+    fun actualizarCliente() {
+        clienteActual?.let { cliente ->
+            isLoading = true  // Al iniciar la actualización
+            // Realizar la solicitud a la API
+            apiService.updateCliente(cliente.id_cliente, cliente).enqueue(object : Callback<Void> {
+                override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                    isLoading = false  // Al finalizar la respuesta
+                    if (response.isSuccessful) {
+                        Toast.makeText(context, "Cliente actualizado con éxito", Toast.LENGTH_SHORT).show()
+                        onBack()
+                    } else {
+                        Toast.makeText(context, "Error al actualizar", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+                override fun onFailure(call: Call<Void>, t: Throwable) {
+                    isLoading = false  // En caso de fallo
+                    Toast.makeText(context, "Fallo: ${t.message}", Toast.LENGTH_SHORT).show()
+                }
+            })
+        }
+    }
+
+    // Clase auxiliar para los campos editables
+    data class CampoEditable(
+        val etiqueta: String,
+        val valor: String,
+        val onCambio: (String) -> Unit
+    )
+
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Black)
             .padding(16.dp)
-            .imePadding()
+            .verticalScroll(rememberScrollState())
     ) {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
+        Text("Modificar Cliente", color = Color.White, fontSize = 20.sp, modifier = Modifier.padding(16.dp))
+
+        // Campo para buscar por correo
+        OutlinedTextField(
+            value = correoBusqueda,
+            onValueChange = { correoBusqueda = it },
+            label = { Text("Correo del cliente a buscar") },
+            modifier = Modifier.fillMaxWidth(),
+            colors = ColoresFormularios.textoBlanco()
+        )
+
+        // Botón para buscar el cliente
+        Button(
+            onClick = { cargarClientePorCorreo(correoBusqueda) },
+            enabled = !isLoading,
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(containerColor = Color.Blue)
         ) {
-            item {
-                Text(
-                    "Modificar Cliente",
-                    color = Color.White,
-                    fontSize = 20.sp,
-                    modifier = Modifier.padding(16.dp)
-                )
+            Text("Buscar Cliente", color = Color.White)
+        }
 
+        clienteActual?.let { cliente ->
 
-                Spacer(modifier = Modifier.height(16.dp))
+            Spacer(Modifier.height(16.dp))
 
-                Button(
-                    onClick = { onBack() },
+            // Definición de los campos editables para cada propiedad del cliente
+            val campos = listOf(
+                CampoEditable("Nombre", cliente.nombre) { nuevo -> clienteActual = clienteActual?.copy(nombre = nuevo) },
+                CampoEditable("Primer Apellido", cliente.primer_apellido) { nuevo -> clienteActual = clienteActual?.copy(primer_apellido = nuevo) },
+                CampoEditable("Segundo Apellido", cliente.segundo_apellido) { nuevo -> clienteActual = clienteActual?.copy(segundo_apellido = nuevo) },
+                CampoEditable("Fecha de Nacimiento", cliente.fecha_nacimiento) { nuevo -> clienteActual = clienteActual?.copy(fecha_nacimiento = nuevo) },
+                CampoEditable("DNI", cliente.dni) { nuevo -> clienteActual = clienteActual?.copy(dni = nuevo) },
+                CampoEditable("Calle", cliente.calle) { nuevo -> clienteActual = clienteActual?.copy(calle = nuevo) },
+                CampoEditable("Número Casa", cliente.numero_casa) { nuevo -> clienteActual = clienteActual?.copy(numero_casa = nuevo) },
+                CampoEditable("Localidad", cliente.localidad) { nuevo -> clienteActual = clienteActual?.copy(localidad = nuevo) },
+                CampoEditable("Provincia", cliente.provincia) { nuevo -> clienteActual = clienteActual?.copy(provincia = nuevo) },
+                CampoEditable("Código Postal", cliente.cod_postal) { nuevo -> clienteActual = clienteActual?.copy(cod_postal = nuevo) },
+                CampoEditable("Nacionalidad", cliente.nacionalidad) { nuevo -> clienteActual = clienteActual?.copy(nacionalidad = nuevo) },
+                CampoEditable("Correo", cliente.correo) { nuevo -> clienteActual = clienteActual?.copy(correo = nuevo) },
+                CampoEditable("Contraseña", cliente.contrasena) { nuevo -> clienteActual = clienteActual?.copy(contrasena = nuevo) }
+            )
+
+            // Mostrar los campos editables
+            campos.forEach { campo ->
+                OutlinedTextField(
+                    value = campo.valor,
+                    onValueChange = campo.onCambio,
+                    label = { Text(campo.etiqueta) },
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
-                ) {
-                    Text("Volver", color = Color.White)
-                }
+                    colors = ColoresFormularios.textoBlanco()
+                )
             }
+
+            Spacer(Modifier.height(16.dp))
+
+            // Botón para actualizar el cliente
+            Button(
+                onClick = { actualizarCliente() },
+                enabled = !isLoading,
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Green)
+            ) {
+                Text("Actualizar Cliente", color = Color.White)
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Botón para volver
+        Button(
+            onClick = { onBack() },
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+        ) {
+            Text("Volver", color = Color.White)
         }
     }
 }
+
+
 // 2.3  borrar cliente
 @Composable
 fun BorrarClienteScreen(onBack: () -> Unit) {
@@ -395,6 +510,7 @@ fun BorrarClienteScreen(onBack: () -> Unit) {
         }
     }
 }
+
 fun borrarCliente(
     context: Context,
     correoODni: String,

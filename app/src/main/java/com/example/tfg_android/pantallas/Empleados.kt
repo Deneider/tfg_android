@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -39,6 +41,7 @@ import com.example.tfg_android.funcionesSinGui.ColoresFormularios
 import com.example.tfg_android.funcionesSinGui.RetrofitClient
 import com.example.tfg_android.funcionesSinGui.Trabajador
 import retrofit2.Call
+import retrofit2.Callback
 import retrofit2.Response
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -317,29 +320,165 @@ fun AltaEmpleadoScreen(onBack: () -> Unit) {
 // Pantalla para modificar empleados
 @Composable
 fun ModificarEmpleadoScreen(onBack: () -> Unit) {
+    val context = LocalContext.current
+    val apiService = RetrofitClient.retrofitInstance.create(ApiService::class.java)
+
+    var correoBusqueda by remember { mutableStateOf("") }
+    var trabajadorActual by remember { mutableStateOf<Trabajador?>(null) }
+    var isLoading by remember { mutableStateOf(false) }
+
+    val formatoEntrada = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) // del backend
+    val formatoSalida = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())  // para mostrar
+    val formatoValidacion = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+
+    fun cargarTrabajadorPorCorreo(correo: String) {
+        if (correo.isBlank()) {
+            Toast.makeText(context, "Introduce un correo", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        isLoading = true
+        apiService.getTrabajadorByCorreo(correo.trim()).enqueue(object : Callback<Trabajador> {
+            override fun onResponse(call: Call<Trabajador>, response: Response<Trabajador>) {
+                isLoading = false
+                if (response.isSuccessful) {
+                    response.body()?.let {
+                        // Convertir fecha de nacimiento para mostrar en formato "dd-MM-yyyy"
+                        val fechaMostrada = try {
+                            formatoSalida.format(formatoEntrada.parse(it.fecha_nacimiento))
+                        } catch (e: Exception) {
+                            it.fecha_nacimiento
+                        }
+                        trabajadorActual = it.copy(fecha_nacimiento = fechaMostrada)
+                    }
+                } else {
+                    Toast.makeText(context, "Trabajador no encontrado", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onFailure(call: Call<Trabajador>, t: Throwable) {
+                isLoading = false
+                Toast.makeText(context, "Error de conexión: ${t.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    fun actualizarTrabajador() {
+        trabajadorActual?.let { trabajador ->
+            // Validar formato de fecha antes de enviar
+            try {
+                formatoValidacion.parse(trabajador.fecha_nacimiento) // lanza excepción si el formato es inválido
+            } catch (e: Exception) {
+                Toast.makeText(context, "Formato de fecha inválido. Usa dd-MM-yyyy", Toast.LENGTH_SHORT).show()
+                return
+            }
+
+            isLoading = true
+            apiService.updateTrabajador(trabajador.id_trabajador, trabajador).enqueue(object : Callback<Void> {
+                override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                    isLoading = false
+                    if (response.isSuccessful) {
+                        Toast.makeText(context, "Trabajador actualizado correctamente", Toast.LENGTH_SHORT).show()
+                        onBack()
+                    } else {
+                        Toast.makeText(context, "Error al actualizar trabajador", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+                override fun onFailure(call: Call<Void>, t: Throwable) {
+                    isLoading = false
+                    Toast.makeText(context, "Fallo: ${t.message}", Toast.LENGTH_SHORT).show()
+                }
+            })
+        }
+    }
+
+    data class CampoEditable(
+        val etiqueta: String,
+        val valor: String,
+        val onCambio: (String) -> Unit
+    )
+
     Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black)
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState())
     ) {
-        Text(
-            text = "Modificar Empleado",
-            color = Color.White,
-            fontSize = 20.sp,
-            modifier = Modifier.padding(16.dp)
+        Text("Modificar Trabajador", color = Color.White, fontSize = 20.sp, modifier = Modifier.padding(16.dp))
+
+        OutlinedTextField(
+            value = correoBusqueda,
+            onValueChange = { correoBusqueda = it },
+            label = { Text("Correo del trabajador a buscar") },
+            modifier = Modifier.fillMaxWidth(),
+            colors = ColoresFormularios.textoBlanco()
         )
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Button(
+            onClick = { cargarTrabajadorPorCorreo(correoBusqueda) },
+            enabled = !isLoading,
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(containerColor = Color.Blue)
+        ) {
+            Text("Buscar Trabajador", color = Color.White)
+        }
+
+        trabajadorActual?.let { trabajador ->
+            Spacer(Modifier.height(16.dp))
+
+            val campos = listOf(
+                CampoEditable("Nombre", trabajador.nombre) { trabajadorActual = trabajadorActual?.copy(nombre = it) },
+                CampoEditable("Primer Apellido", trabajador.primer_apellido) { trabajadorActual = trabajadorActual?.copy(primer_apellido = it) },
+                CampoEditable("Segundo Apellido", trabajador.segundo_apellido) { trabajadorActual = trabajadorActual?.copy(segundo_apellido = it) },
+                CampoEditable("Fecha de Nacimiento", trabajador.fecha_nacimiento) { trabajadorActual = trabajadorActual?.copy(fecha_nacimiento = it) },
+                CampoEditable("DNI", trabajador.dni) { trabajadorActual = trabajadorActual?.copy(dni = it) },
+                CampoEditable("Calle", trabajador.calle) { trabajadorActual = trabajadorActual?.copy(calle = it) },
+                CampoEditable("Número Casa", trabajador.numero_casa) { trabajadorActual = trabajadorActual?.copy(numero_casa = it) },
+                CampoEditable("Localidad", trabajador.localidad) { trabajadorActual = trabajadorActual?.copy(localidad = it) },
+                CampoEditable("Provincia", trabajador.provincia) { trabajadorActual = trabajadorActual?.copy(provincia = it) },
+                CampoEditable("Código Postal", trabajador.cod_postal) { trabajadorActual = trabajadorActual?.copy(cod_postal = it) },
+                CampoEditable("Nacionalidad", trabajador.nacionalidad) { trabajadorActual = trabajadorActual?.copy(nacionalidad = it) },
+                CampoEditable("Correo", trabajador.correo) { trabajadorActual = trabajadorActual?.copy(correo = it) },
+                CampoEditable("Contraseña", trabajador.contrasena) { trabajadorActual = trabajadorActual?.copy(contrasena = it) },
+                CampoEditable("Puesto", trabajador.puesto) { trabajadorActual = trabajadorActual?.copy(puesto = it) }
+            )
+
+            campos.forEach { campo ->
+                OutlinedTextField(
+                    value = campo.valor,
+                    onValueChange = campo.onCambio,
+                    label = { Text(campo.etiqueta) },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ColoresFormularios.textoBlanco()
+                )
+            }
+
+            Spacer(Modifier.height(16.dp))
+
+            Button(
+                onClick = { actualizarTrabajador() },
+                enabled = !isLoading,
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Green)
+            ) {
+                Text("Actualizar Trabajador", color = Color.White)
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            onClick = { onBack() },
+            onClick = onBack,
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
         ) {
-            Text(text = "Volver", color = Color.White)
+            Text("Volver", color = Color.White)
         }
     }
 }
+
 
 // Pantalla para borrar empleados
 @Composable

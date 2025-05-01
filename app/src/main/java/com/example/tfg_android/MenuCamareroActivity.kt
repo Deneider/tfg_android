@@ -159,6 +159,13 @@ fun CamareroRelojesScreen() {
                     modifier = Modifier.padding(vertical = 16.dp)
                 )
 
+                Text(
+                    text = "Asociaciones de relojes",
+                    color = Color.White,
+                    fontSize = 24.sp,
+                    modifier = Modifier.padding(vertical = 16.dp)
+                )
+
                 Button(
                     onClick = { opcionSeleccionada = "AsociarReloj" },
                     modifier = Modifier.fillMaxWidth(),
@@ -166,13 +173,33 @@ fun CamareroRelojesScreen() {
                 ) {
                     Text(text = "Vincular reloj", color = Color.White)
                 }
-
                 Button(
-                    onClick = {opcionSeleccionada = "DesAsociarReloj"},
+                    onClick = { opcionSeleccionada = "DesAsociarReloj" },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF24BDFF))
                 ){
                     Text(text = "Desvincular reloj", color = Color.White)
+                }
+
+                Text(
+                    text = "Cobro y recarga de puntos",
+                    color = Color.White,
+                    fontSize = 24.sp,
+                    modifier = Modifier.padding(vertical = 16.dp)
+                )
+                Button(
+                    onClick = { opcionSeleccionada = "" },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF24BDFF))
+                ){
+                    Text(text  = "Cobrar", color = Color.White)
+                }
+                Button(
+                    onClick = { opcionSeleccionada = "" },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF24BDFF))
+                ) {
+                    Text(text  = "Recargar", color = Color.White)
                 }
             }
         }
@@ -187,6 +214,7 @@ fun CamareroRelojesScreen() {
                 opcionSeleccionada = "MenuCamarero"
             }
         }
+        // AÑADIR FUNCIONALIDADES DE COBRO Y PAGOS
 
     }
 }

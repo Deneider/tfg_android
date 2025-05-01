@@ -245,19 +245,12 @@ fun asociarReloj(
             if (response.isSuccessful) {
                 val cliente = response.body()
                 if (cliente != null) {
-                    // Aquí la respuesta puede ser más compleja, verifiquemos el cuerpo correctamente
+                    // Cliente encontrado, ahora asignar reloj
                     val callAsignar = api.asignarReloj(cliente.id_cliente.toString(), macReloj)
                     callAsignar.enqueue(object : Callback<ApiResponse> {
                         override fun onResponse(call: Call<ApiResponse>, response: Response<ApiResponse>) {
                             if (response.isSuccessful) {
-                                // Comprobamos la respuesta correctamente
-                                val apiResponse = response.body()
-                                if (apiResponse != null && apiResponse.message == "Reloj asignado correctamente al cliente") {
-                                    onResultado("Reloj asociado con éxito")
-                                } else {
-                                    onResultado("Error al asociar reloj: ${apiResponse?.message ?: "Desconocido"}")
-                                }
-
+                                onResultado("Reloj asociado con éxito")
                             } else {
                                 onResultado("Error al asociar reloj: ${response.message()}")
                             }
@@ -271,7 +264,7 @@ fun asociarReloj(
                     onResultado("Cliente no encontrado")
                 }
             } else {
-                onResultado("Error al buscar cliente")
+                onResultado("Error al buscar cliente: ${response.message()}")
             }
         }
 
@@ -279,6 +272,7 @@ fun asociarReloj(
             onResultado("Fallo al buscar cliente: ${t.message}")
         }
     })
+
 }
 
 

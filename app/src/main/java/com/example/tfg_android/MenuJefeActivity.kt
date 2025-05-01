@@ -132,13 +132,13 @@ fun JefeBottomNavigationBar(navController: NavHostController) {
             onClick = { navController.navigate("empleados") },
             icon = {
                 Icon(
-                    painter = painterResource(id = R.drawable.usuario),
+                    painter = painterResource(id = R.drawable.empleados),
                     contentDescription = "Empleados",
                     tint = Color.White,
                     modifier = Modifier.size(50.dp) // Íconos más grandes
                 )
             },
-            label = { Text("Empleados", color = Color.White, fontSize = 18.sp) }, // Texto más grande
+            label = { Text("Empleados", color = Color.White, fontSize = 13.sp) }, // Texto más pequeño
             selectedContentColor = Color(0xFF24BDFF),
             unselectedContentColor = Color.Gray
         )
@@ -182,6 +182,13 @@ fun JefeRelojesScreen() {
                     modifier = Modifier.padding(vertical = 16.dp)
                 )
 
+                Text(
+                    text = "Asociaciones de relojes",
+                    color = Color.White,
+                    fontSize = 24.sp,
+                    modifier = Modifier.padding(vertical = 16.dp)
+                )
+
                 Button(
                     onClick = { opcionSeleccionada = "AsociarReloj" },
                     modifier = Modifier.fillMaxWidth(),
@@ -196,6 +203,27 @@ fun JefeRelojesScreen() {
                 ){
                     Text(text = "Desvincular reloj", color = Color.White)
                 }
+
+                Text(
+                    text = "Cobro y recarga de puntos",
+                    color = Color.White,
+                    fontSize = 24.sp,
+                    modifier = Modifier.padding(vertical = 16.dp)
+                )
+                Button(
+                    onClick = { opcionSeleccionada = "" },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF24BDFF))
+                ){
+                    Text(text  = "Cobrar", color = Color.White)
+                }
+                Button(
+                    onClick = { opcionSeleccionada = "" },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF24BDFF))
+                ) {
+                    Text(text  = "Recargar", color = Color.White)
+                }
             }
         }
 
@@ -209,6 +237,7 @@ fun JefeRelojesScreen() {
                 opcionSeleccionada = "MenuJefe"
             }
         }
+        // AÑADIR FUNCIONALIDADES DE COBRO Y PAGOS
 
     }
 }
