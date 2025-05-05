@@ -22,7 +22,7 @@ interface ApiService {
     fun getTrabajadorByCorreo(@Query("correo") correo: String): Call<Trabajador>
 
     // Para crear un trabajador
-    @POST("apiDesubicados/Trabajadores")
+    @POST("apiDesubicados/Trabajadores/crear")
     fun createTrabajador(@Body trabajador: Trabajador): Call<Void>
 
     // borrar trabajador
@@ -53,7 +53,7 @@ interface ApiService {
     fun getClienteByDni(@Query("dni") dni: String): Call<Cliente>
 
     // Para crear un cliente
-    @POST("apiDesubicados/Clientes")
+    @POST("apiDesubicados/Clientes/crear")
     fun createCliente(@Body cliente: Cliente): Call<Void>
 
     // Para borrar un cliente
@@ -69,7 +69,19 @@ interface ApiService {
         @Body cliente: Cliente
     ): Call<Void>
 
+    // Añadir puntos a un cliente
+    @POST("apiDesubicados/Clientes/anadirPuntos/")
+    fun anadirPuntos(
+        @Query("id_cliente") idCliente: Int,
+        @Query("puntos") puntos: Int
+    ): Call<Map<String, Any>>
 
+    // Cobrar puntos a un cliente
+    @POST("apiDesubicados/Clientes/cobrarPuntos/")
+    fun cobrarPuntos(
+        @Query("id_cliente") idCliente: Int,
+        @Query("puntos") puntos: Int
+    ): Call<Map<String, Any>>
 
 
     // RELOJES
@@ -92,6 +104,10 @@ interface ApiService {
         @Query("id_cliente") idCliente: String,
         @Query("id_reloj") idReloj: String
     ): Call<ApiResponse>
+
+    @GET("apiDesubicados/Clientes_Relojes/obtenerPorMacReloj")
+    fun getClientePorMacReloj(@Query("mac") mac: String): Call<Cliente>
+
 
 
 }

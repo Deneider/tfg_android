@@ -29,9 +29,11 @@ import com.example.tfg_android.pantallas.AltaEmpleadoScreen
 import com.example.tfg_android.pantallas.AsociarReloj
 import com.example.tfg_android.pantallas.BorrarClienteScreen
 import com.example.tfg_android.pantallas.BorrarEmpleadoScreen
+import com.example.tfg_android.pantallas.CobrarPuntos
 import com.example.tfg_android.pantallas.DesAsociarReloj
 import com.example.tfg_android.pantallas.ModificarClienteScreen
 import com.example.tfg_android.pantallas.ModificarEmpleadoScreen
+import com.example.tfg_android.pantallas.RecargarPuntos
 import com.example.tfg_android.ui.theme.Tfg_androidTheme
 
 
@@ -211,14 +213,14 @@ fun JefeRelojesScreen() {
                     modifier = Modifier.padding(vertical = 16.dp)
                 )
                 Button(
-                    onClick = { opcionSeleccionada = "" },
+                    onClick = { opcionSeleccionada = "CobrarPuntos" },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF24BDFF))
                 ){
                     Text(text  = "Cobrar", color = Color.White)
                 }
                 Button(
-                    onClick = { opcionSeleccionada = "" },
+                    onClick = { opcionSeleccionada = "RecargarPuntos" },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF24BDFF))
                 ) {
@@ -238,7 +240,16 @@ fun JefeRelojesScreen() {
             }
         }
         // AÑADIR FUNCIONALIDADES DE COBRO Y PAGOS
-
+        "CobrarPuntos" ->{
+            CobrarPuntos{
+                opcionSeleccionada = "MenuJefe"
+            }
+        }
+        "RecargarPuntos" -> {
+            RecargarPuntos{
+                opcionSeleccionada = "MenuJefe"
+            }
+        }
     }
 }
 

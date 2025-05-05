@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -30,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.tfg_android.funcionesSinGui.ApiResponse
@@ -123,7 +125,6 @@ fun EscanearQR(
 
 
 //  1.1 asociar relojes
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AsociarReloj(onBack: () -> Unit) {
     var isScanningQR by remember { mutableStateOf(false) }
@@ -428,6 +429,276 @@ fun desasociarReloj(
                 }
             } else {
                 onResultado("Error al buscar cliente")
+            }
+        }
+
+        override fun onFailure(call: Call<Cliente>, t: Throwable) {
+            onResultado("Fallo al buscar cliente: ${t.message}")
+        }
+    })
+}
+
+@Composable
+fun CobrarPuntos(onBack: () -> Unit) {
+    var isScanningQR by remember { mutableStateOf(false) }
+    var macEscaneada by remember { mutableStateOf<String?>(null) }
+    var puntosACobrar by remember { mutableStateOf("") }
+    var mensaje by remember { mutableStateOf("") }
+
+    val context = LocalContext.current
+
+    if (isScanningQR) {
+        EscanearQR(
+            onMacScanned = {
+                macEscaneada = it
+                isScanningQR = false
+            },
+            onBack = { isScanningQR = false }
+        )
+    } else {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black)
+                .padding(16.dp)
+        ) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                item {
+                    Text("Cobrar Puntos", color = Color.White, fontSize = 20.sp)
+
+                    macEscaneada?.let {
+                        Text("MAC escaneada: $it", color = Color.Green)
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    OutlinedTextField(
+                        value = puntosACobrar,
+                        onValueChange = { puntosACobrar = it },
+                        label = { Text("Puntos a cobrar") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        colors = ColoresFormularios.textoBlanco()
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Button(
+                        onClick = { isScanningQR = true },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF24BDFF))
+                    ) {
+                        Text("ESCANEAR QR", color = Color.White)
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Button(
+                        onClick = {
+                            cobrarPuntos(context, macEscaneada, puntosACobrar.toIntOrNull()) { resultado ->
+                                mensaje = resultado
+                            }
+                        },
+                        enabled = macEscaneada != null && puntosACobrar.toIntOrNull() != null,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("COBRAR", color = Color.White)
+                    }
+
+                    if (mensaje.isNotBlank()) {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(mensaje, color = Color.Yellow)
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Button(
+                        onClick = onBack,
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+                    ) {
+                        Text("Volver", color = Color.White)
+                    }
+                }
+            }
+        }
+    }
+}
+fun cobrarPuntos(
+    context: Context,
+    macReloj: String?,
+    puntos: Int?,
+    onResultado: (String) -> Unit
+) {
+    if (macReloj == null || puntos == null) {
+        onResultado("MAC del reloj o puntos inválidos")
+        return
+    }
+
+    val api = RetrofitClient.apiService
+
+    api.getClientePorMacReloj(macReloj).enqueue(object : Callback<Cliente> {
+        override fun onResponse(call: Call<Cliente>, response: Response<Cliente>) {
+            if (response.isSuccessful) {
+                val cliente = response.body()
+                if (cliente != null) {
+                    api.cobrarPuntos(cliente.id_cliente, puntos).enqueue(object : Callback<Map<String, Any>> {
+                        override fun onResponse(call: Call<Map<String, Any>>, response: Response<Map<String, Any>>) {
+                            if (response.isSuccessful) {
+                                onResultado("Puntos cobrados correctamente")
+                            } else {
+                                onResultado("Error al cobrar puntos: ${response.message()}")
+                            }
+                        }
+
+                        override fun onFailure(call: Call<Map<String, Any>>, t: Throwable) {
+                            onResultado("Fallo al cobrar puntos: ${t.message}")
+                        }
+                    })
+                } else {
+                    onResultado("Cliente no encontrado para la MAC proporcionada")
+                }
+            } else {
+                onResultado("Error al buscar cliente: ${response.message()}")
+            }
+        }
+
+        override fun onFailure(call: Call<Cliente>, t: Throwable) {
+            onResultado("Fallo al buscar cliente: ${t.message}")
+        }
+    })
+}
+
+@Composable
+fun RecargarPuntos(onBack: () -> Unit) {
+    var isScanningQR by remember { mutableStateOf(false) }
+    var macEscaneada by remember { mutableStateOf<String?>(null) }
+    var puntosARecargar by remember { mutableStateOf("") }
+    var mensaje by remember { mutableStateOf("") }
+
+    val context = LocalContext.current
+
+    if (isScanningQR) {
+        EscanearQR(
+            onMacScanned = {
+                macEscaneada = it
+                isScanningQR = false
+            },
+            onBack = { isScanningQR = false }
+        )
+    } else {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black)
+                .padding(16.dp)
+        ) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                item {
+                    Text("Recargar Puntos", color = Color.White, fontSize = 20.sp)
+
+                    macEscaneada?.let {
+                        Text("MAC escaneada: $it", color = Color.Green)
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    OutlinedTextField(
+                        value = puntosARecargar,
+                        onValueChange = { puntosARecargar = it },
+                        label = { Text("Puntos a recargar") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        colors = ColoresFormularios.textoBlanco()
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Button(
+                        onClick = { isScanningQR = true },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF24BDFF))
+                    ) {
+                        Text("ESCANEAR QR", color = Color.White)
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Button(
+                        onClick = {
+                            recargarPuntos(context, macEscaneada, puntosARecargar.toIntOrNull()) { resultado ->
+                                mensaje = resultado
+                            }
+                        },
+                        enabled = macEscaneada != null && puntosARecargar.toIntOrNull() != null,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("RECARGAR", color = Color.White)
+                    }
+
+                    if (mensaje.isNotBlank()) {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(mensaje, color = Color.Yellow)
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Button(
+                        onClick = onBack,
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+                    ) {
+                        Text("Volver", color = Color.White)
+                    }
+                }
+            }
+        }
+    }
+}
+fun recargarPuntos(
+    context: Context,
+    macReloj: String?,
+    puntos: Int?,
+    onResultado: (String) -> Unit
+) {
+    if (macReloj == null || puntos == null) {
+        onResultado("MAC del reloj o puntos inválidos")
+        return
+    }
+
+    val api = RetrofitClient.apiService
+
+    api.getClientePorMacReloj(macReloj).enqueue(object : Callback<Cliente> {
+        override fun onResponse(call: Call<Cliente>, response: Response<Cliente>) {
+            if (response.isSuccessful) {
+                val cliente = response.body()
+                if (cliente != null) {
+                    api.anadirPuntos(cliente.id_cliente, puntos).enqueue(object : Callback<Map<String, Any>> {
+                        override fun onResponse(call: Call<Map<String, Any>>, response: Response<Map<String, Any>>) {
+                            if (response.isSuccessful) {
+                                onResultado("Puntos recargados correctamente")
+                            } else {
+                                onResultado("Error al recargar puntos: ${response.message()}")
+                            }
+                        }
+
+                        override fun onFailure(call: Call<Map<String, Any>>, t: Throwable) {
+                            onResultado("Fallo al recargar puntos: ${t.message}")
+                        }
+                    })
+                } else {
+                    onResultado("Cliente no encontrado para la MAC proporcionada")
+                }
+            } else {
+                onResultado("Error al buscar cliente: ${response.message()}")
             }
         }
 
