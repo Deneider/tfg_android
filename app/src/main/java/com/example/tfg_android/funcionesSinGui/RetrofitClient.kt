@@ -4,7 +4,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
-    private const val BASE_URL = "http://obkserver.duckdns.org:8000/"
+    private const val BASE_URL = "http://90.169.44.35:8000/"
 
     val retrofitInstance: Retrofit by lazy {
         Retrofit.Builder()

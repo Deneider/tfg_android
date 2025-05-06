@@ -294,7 +294,7 @@ fun AltaEmpleadoScreen(onBack: () -> Unit) {
                     },
                     modifier = Modifier.fillMaxWidth(),
                     enabled = !isLoading,
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Green)
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF167900))
                 ) {
                     if (isLoading) {
                         CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
@@ -420,7 +420,7 @@ fun ModificarEmpleadoScreen(onBack: () -> Unit) {
             onClick = { cargarTrabajadorPorCorreo(correoBusqueda) },
             enabled = !isLoading,
             modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(containerColor = Color.Blue)
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF24BDFF))
         ) {
             Text("Buscar Trabajador", color = Color.White)
         }

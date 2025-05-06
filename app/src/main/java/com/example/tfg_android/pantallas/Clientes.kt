@@ -268,7 +268,7 @@ fun AltaClienteScreen(onBack: () -> Unit) {
                     },
                     modifier = Modifier.fillMaxWidth(),
                     enabled = !isLoading,
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Green)
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF167900))
                 ) {
                     if (isLoading) {
                         CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
@@ -375,7 +375,7 @@ fun ModificarClienteScreen(onBack: () -> Unit) {
             onClick = { cargarClientePorCorreo(correoBusqueda) },
             enabled = !isLoading,
             modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(containerColor = Color.Blue)
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF24BDFF))
         ) {
             Text("Buscar Cliente", color = Color.White)
         }
