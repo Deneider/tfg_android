@@ -1,11 +1,11 @@
 package com.example.tfg_android.pantallas
 
+import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -24,7 +25,6 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,6 +40,7 @@ import com.example.tfg_android.funcionesSinGui.ApiService
 import com.example.tfg_android.funcionesSinGui.ColoresFormularios
 import com.example.tfg_android.funcionesSinGui.RetrofitClient
 import com.example.tfg_android.funcionesSinGui.Trabajador
+import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -139,16 +140,30 @@ fun AltaEmpleadoScreen(onBack: () -> Unit) {
                     ).show()
                 }
 
-                // Fecha de nacimiento con DatePicker
-                OutlinedTextField(
-                    value = fechaNacimiento,
-                    onValueChange = {},
-                    label = { Text("Fecha de Nacimiento") },
-                    readOnly = true,
+                // Fecha de nacimiento con botón
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { isDatePickerDialogShown = true }
-                )
+                        .padding(vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    OutlinedTextField(
+                        value = fechaNacimiento,
+                        onValueChange = {},
+                        label = { Text("Fecha de Nacimiento") },
+                        readOnly = true,
+                        modifier = Modifier.weight(1f),
+                        colors = ColoresFormularios.textoBlanco()
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(
+                        onClick = { isDatePickerDialogShown = true },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Gray)
+                    ) {
+                        Text("Seleccionar Fecha", color = Color.White)
+                    }
+                }
+
 
                 OutlinedTextField(
                     value = dni,
@@ -218,21 +233,34 @@ fun AltaEmpleadoScreen(onBack: () -> Unit) {
 
                 // Dropdown para seleccionar el puesto
                 var expanded by remember { mutableStateOf(false) }
-                Box {
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     OutlinedTextField(
                         value = puesto,
                         onValueChange = {},
                         label = { Text("Puesto") },
                         readOnly = true,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { expanded = true }
+                        modifier = Modifier.weight(1f),
+                        colors = ColoresFormularios.textoBlanco()
                     )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(
+                        onClick = { expanded = true },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Gray)
+                    ) {
+                        Text("Elegir", color = Color.White)
+                    }
+
                     DropdownMenu(
                         expanded = expanded,
                         onDismissRequest = { expanded = false }
                     ) {
-                        listOf("camarero", "jefe", "cocinero").forEach { role ->
+                        listOf("camarero", "jefe").forEach { role ->
                             DropdownMenuItem(
                                 text = { Text(role) },
                                 onClick = {
@@ -294,7 +322,7 @@ fun AltaEmpleadoScreen(onBack: () -> Unit) {
                     },
                     modifier = Modifier.fillMaxWidth(),
                     enabled = !isLoading,
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF167900))
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
                 ) {
                     if (isLoading) {
                         CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
@@ -483,26 +511,114 @@ fun ModificarEmpleadoScreen(onBack: () -> Unit) {
 // Pantalla para borrar empleados
 @Composable
 fun BorrarEmpleadoScreen(onBack: () -> Unit) {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+    var inputCorreo by remember { mutableStateOf("") }
+    var mensaje by remember { mutableStateOf("") }
+
+    val context = LocalContext.current
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black)
+            .padding(16.dp)
+            .imePadding()
     ) {
-        Text(
-            text = "Borrar Empleado",
-            color = Color.White,
-            fontSize = 20.sp,
-            modifier = Modifier.padding(16.dp)
-        )
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        Button(
-            onClick = { onBack() },
-            modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = "Volver", color = Color.White)
+            item {
+                Text(
+                    "Borrar Empleado",
+                    color = Color.White,
+                    fontSize = 20.sp,
+                    modifier = Modifier.padding(16.dp)
+                )
+
+                OutlinedTextField(
+                    value = inputCorreo,
+                    onValueChange = { inputCorreo = it },
+                    label = { Text("Correo del empleado") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    singleLine = true,
+                    colors = ColoresFormularios.textoBlanco()
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Button(
+                    onClick = {
+                        borrarEmpleado(context, inputCorreo) { resultado ->
+                            mensaje = resultado
+                        }
+                    },
+                    enabled = inputCorreo.isNotBlank(),
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+                ) {
+                    Text("BORRAR EMPLEADO", color = Color.White)
+                }
+
+                if (mensaje.isNotBlank()) {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(mensaje, color = Color.Yellow)
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(
+                    onClick = onBack,
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Gray)
+                ) {
+                    Text("Volver", color = Color.White)
+                }
+            }
         }
     }
+}
+
+fun borrarEmpleado(
+    context: Context,
+    correo: String,
+    onResultado: (String) -> Unit
+) {
+    val api = RetrofitClient.apiService
+
+    val callBuscar = api.getTrabajadorByCorreo(correo)
+
+    callBuscar.enqueue(object : Callback<Trabajador> {
+        override fun onResponse(call: Call<Trabajador>, response: Response<Trabajador>) {
+            if (response.isSuccessful) {
+                val trabajador = response.body()
+                if (trabajador != null) {
+                    val callBorrar = api.deleteTrabajador(trabajador.id_trabajador)
+                    callBorrar.enqueue(object : Callback<ResponseBody> {
+                        override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                            if (response.isSuccessful) {
+                                val mensajeRespuesta = response.body()?.string() ?: "Empleado eliminado correctamente"
+                                onResultado("Empleado eliminado correctamente: $mensajeRespuesta")
+                            } else {
+                                onResultado("Error al eliminar empleado: ${response.message()}")
+                            }
+                        }
+
+                        override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                            onResultado("Fallo al eliminar empleado: ${t.message}")
+                        }
+                    })
+                } else {
+                    onResultado("Empleado no encontrado.")
+                }
+            } else {
+                onResultado("Error al buscar empleado.")
+            }
+        }
+
+        override fun onFailure(call: Call<Trabajador>, t: Throwable) {
+            onResultado("Fallo al buscar empleado: ${t.message}")
+        }
+    })
 }

@@ -268,7 +268,7 @@ fun AltaClienteScreen(onBack: () -> Unit) {
                     },
                     modifier = Modifier.fillMaxWidth(),
                     enabled = !isLoading,
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF167900))
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
                 ) {
                     if (isLoading) {
                         CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
@@ -442,7 +442,7 @@ fun ModificarClienteScreen(onBack: () -> Unit) {
 // 2.3  borrar cliente
 @Composable
 fun BorrarClienteScreen(onBack: () -> Unit) {
-    var inputCorreoODni by remember { mutableStateOf("") }
+    var inputCorreo by remember { mutableStateOf("") }
     var mensaje by remember { mutableStateOf("") }
 
     val context = LocalContext.current
@@ -467,9 +467,9 @@ fun BorrarClienteScreen(onBack: () -> Unit) {
                 )
 
                 OutlinedTextField(
-                    value = inputCorreoODni,
-                    onValueChange = { inputCorreoODni = it },
-                    label = { Text("Correo o DNI del cliente") },
+                    value = inputCorreo,
+                    onValueChange = { inputCorreo = it },
+                    label = { Text("Correo del cliente") },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 8.dp),
@@ -481,11 +481,11 @@ fun BorrarClienteScreen(onBack: () -> Unit) {
 
                 Button(
                     onClick = {
-                        borrarCliente(context, inputCorreoODni) { resultado ->
+                        borrarCliente(context, inputCorreo) { resultado ->
                             mensaje = resultado
                         }
                     },
-                    enabled = inputCorreoODni.isNotBlank(),
+                    enabled = inputCorreo.isNotBlank(),
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
                 ) {
@@ -513,16 +513,12 @@ fun BorrarClienteScreen(onBack: () -> Unit) {
 
 fun borrarCliente(
     context: Context,
-    correoODni: String,
+    correo: String,
     onResultado: (String) -> Unit
 ) {
     val api = RetrofitClient.apiService
 
-    val callBuscar = if (correoODni.contains("@")) {
-        api.getClienteByCorreo(correoODni)
-    } else {
-        api.getClienteByDni(correoODni)
-    }
+    val callBuscar = api.getClienteByCorreo(correo)
 
     callBuscar.enqueue(object : Callback<Cliente> {
         override fun onResponse(call: Call<Cliente>, response: Response<Cliente>) {
@@ -544,7 +540,6 @@ fun borrarCliente(
                             onResultado("Fallo al eliminar cliente: ${t.message}")
                         }
                     })
-
                 } else {
                     onResultado("Cliente no encontrado.")
                 }
