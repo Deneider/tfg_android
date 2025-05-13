@@ -1,6 +1,8 @@
 package com.example.tfg_android
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
@@ -18,6 +20,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -67,14 +70,22 @@ fun MenuCamareroScreen(nombreUsuario: String) {
         Box(modifier = Modifier.padding(paddingValues)) {
             // Composable que gestiona las pantallas
             NavHost(navController = navController, startDestination = "perfil") {
-                composable("perfil") {
-                    CamareroPerfilScreen(nombreUsuario = nombreUsuario)
-                }
+
                 composable("relojes") {
                     CamareroRelojesScreen()
                 }
                 composable("clientes") {
                     CamareroClientesScreen()
+                }
+                composable("perfil") {
+                    CamareroPerfilScreen(
+                    nombreUsuario = nombreUsuario,
+                    onLogout = {
+                        navController.navigate("login") {
+                            popUpTo("perfil") { inclusive = true }  //Esta opcion no "inicia sesion" de nuevo si usa el boton de atras del sistema
+                        }
+
+                    })
                 }
             }
         }
@@ -303,7 +314,13 @@ fun CamareroClientesScreen() {
 
 //  3. PERFIL
 @Composable
-fun CamareroPerfilScreen(nombreUsuario: String) {
+fun CamareroPerfilScreen(
+    nombreUsuario: String,
+    onLogout: () -> Unit // Vuelta al Login
+) {
+    val context = LocalContext.current
+    val activity = context as? Activity
+
     // Aquí va la interfaz de la pantalla de Perfil
     Column(
         modifier = Modifier
@@ -314,5 +331,30 @@ fun CamareroPerfilScreen(nombreUsuario: String) {
         verticalArrangement = Arrangement.Center
     ) {
         Text(text = "Perfil de $nombreUsuario", color = Color.White, fontSize = 24.sp) // Texto más grande
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Button(
+            onClick = {
+                val intent = Intent(context, MainActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                context.startActivity(intent)
+            },
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFC107)) // Amarillo
+        ) {
+            Text(text = "Cerrar Sesión", color = Color.Black)
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Button(
+            onClick = {
+                activity?.finishAffinity() // Cierra la app
+            },
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+        ) {
+            Text(text = "Cerrar APP", color = Color.White)
+        }
     }
 }

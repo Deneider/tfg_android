@@ -19,6 +19,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
+//metodo main
 class MainActivity : ComponentActivity() {
 
     @RequiresApi(Build.VERSION_CODES.S)
@@ -30,7 +31,7 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
 
                 LoginScreen(onLogin = { correo, contrasena ->
-                    // Llamada a la función de obtener trabajador
+                    // Llamada a la función de obtener trabajador para hacer el inicio de sesion en la pantalla correcta
                     getTrabajadorByCorreo(correo, contrasena, navController)
                 })
             }
@@ -42,9 +43,9 @@ class MainActivity : ComponentActivity() {
         correo: String,
         contrasena: String,
         navController: NavHostController
-    ) {
+    ) { //instanacia de la api
         val apiService = RetrofitClient.retrofitInstance.create(ApiService::class.java)
-
+        // obtener trabajador por correo para el inicio de sesion
         apiService.getTrabajadorByCorreo(correo).enqueue(object : Callback<Trabajador> {
             override fun onResponse(call: Call<Trabajador>, response: Response<Trabajador>) {
                 if (response.isSuccessful) {

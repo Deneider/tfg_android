@@ -1,5 +1,5 @@
 package com.example.tfg_android.pantallas
-
+// Funcionalidades de la pantalla clietnes
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -51,7 +51,7 @@ import java.util.Locale
 fun AltaClienteScreen(onBack: () -> Unit) {
     val context = LocalContext.current
 
-    // Estados para los campos de entrada
+    // declaro las variables que se van a relllenar correspondiente a Cliente, de funcionesSinGui
     var nombre by remember { mutableStateOf("") }
     var apellido1 by remember { mutableStateOf("") }
     var apellido2 by remember { mutableStateOf("") }
@@ -69,13 +69,14 @@ fun AltaClienteScreen(onBack: () -> Unit) {
     var isLoading by remember { mutableStateOf(false) }
     var isDatePickerOpen by remember { mutableStateOf(false) }
 
+    // llamo a la instancia de apiService creada en Retrofit client
     val apiService = RetrofitClient.retrofitInstance.create(ApiService::class.java)
 
-    // Configuración de la fecha
+    // configuración de la fecha
     val dateFormatter = remember { SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()) }
     val calendar = Calendar.getInstance()
 
-    // Scroll habilitado
+    // Para añadir los botones y textos
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -83,11 +84,11 @@ fun AltaClienteScreen(onBack: () -> Unit) {
             .padding(16.dp)
             .imePadding()
     ) {
-        LazyColumn(
+        LazyColumn( // Que sea una columna horizontal
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            item {
+            item { // no doy detalles ya que es fácil de entender
                 Text(
                     "Alta de Cliente",
                     color = Color.White,
@@ -119,7 +120,7 @@ fun AltaClienteScreen(onBack: () -> Unit) {
                     colors = ColoresFormularios.textoBlanco()
                 )
 
-                // Fecha de nacimiento con DatePicker
+                // Fecha de nacimiento con datepicker (Es un selector de fechas, abre el  navito del SO)
                 OutlinedTextField(
                     value = fechaNacimiento,
                     onValueChange = {},
@@ -131,8 +132,9 @@ fun AltaClienteScreen(onBack: () -> Unit) {
                         .clickable { isDatePickerOpen = true }
                 )
                 if (isDatePickerOpen) {
+                    // abrimos el selector de fecha con launched effect
                     LaunchedEffect(Unit) {
-                        val datePickerDialog = android.app.DatePickerDialog(
+                        val datePickerDialog = android.app.DatePickerDialog( // guardo la información del datepicker con la variable datePickerDialog
                             context,
                             { _, year, month, dayOfMonth ->
                                 calendar.set(year, month, dayOfMonth)
@@ -141,9 +143,9 @@ fun AltaClienteScreen(onBack: () -> Unit) {
                             },
                             calendar.get(Calendar.YEAR),
                             calendar.get(Calendar.MONTH),
-                            calendar.get(Calendar.DAY_OF_MONTH)
+                            calendar.get(Calendar.DAY_OF_MONTH) //Recojo la información que pone el usuario en su fecha de nacimiento
                         )
-                        datePickerDialog.show()
+                        datePickerDialog.show() // muestro el datepicker para que el usuario pueda seleccionar su fecha de nacimiento
                     }
                 }
 
@@ -222,7 +224,7 @@ fun AltaClienteScreen(onBack: () -> Unit) {
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Button(
-                    onClick = {
+                    onClick = { //Si los campos siguientes no estan llenos nos dira lo de Toast.makeText
                         if (nombre.isBlank() || apellido1.isBlank() || apellido2.isBlank() || fechaNacimiento.isBlank() ||
                             dni.isBlank() || calle.isBlank() || numero_casa.isBlank() || localidad.isBlank() || provincia.isBlank() ||
                             cod_postal.isBlank() || nacionalidad.isBlank() || correo.isBlank() || contrasena.isBlank()) {
@@ -233,7 +235,7 @@ fun AltaClienteScreen(onBack: () -> Unit) {
 
                         isLoading = true
                         val nuevoCliente = Cliente(
-                            id_cliente = 0, // El backend lo generará
+                            id_cliente = 0, // El backend del endpoint  lo generará automaticamente (la bdd genera de forma autoincremental la id_cliente)
                             nombre = nombre,
                             primer_apellido = apellido1,
                             segundo_apellido = apellido2,
@@ -245,11 +247,11 @@ fun AltaClienteScreen(onBack: () -> Unit) {
                             provincia = provincia,
                             cod_postal = cod_postal,
                             nacionalidad = nacionalidad,
-                            puntos = 0,
+                            puntos = 0, // ya que de forma teórica el usuario debería de pagar por los puntos
                             correo = correo,
                             contrasena = contrasena
                         )
-
+                        // envio los datos a la api
                         apiService.createCliente(nuevoCliente).enqueue(object : retrofit2.Callback<Void> {
                             override fun onResponse(call: Call<Void>, response: Response<Void>) {
                                 isLoading = false
@@ -293,12 +295,13 @@ fun AltaClienteScreen(onBack: () -> Unit) {
 
 // 2.2  modificar cliente
 @Composable
-fun ModificarClienteScreen(onBack: () -> Unit) {
+fun ModificarClienteScreen(onBack: () -> Unit) { // on back vuelve hacia atraas, esta hecho para que tenga sentido el boton de volver
+
     val context = LocalContext.current
-    val apiService = RetrofitClient.retrofitInstance.create(ApiService::class.java)
+    val apiService = RetrofitClient.retrofitInstance.create(ApiService::class.java) //peticiones de http con RetrofitCliente y su instancia
 
     var correoBusqueda by remember { mutableStateOf("") }
-    var clienteActual by remember { mutableStateOf<Cliente?>(null) }
+    var clienteActual by remember { mutableStateOf<Cliente?>(null) } //cliente cargado desde la api
     var isLoading by remember { mutableStateOf(false) }
 
     // Función para cargar el cliente por correo
@@ -308,7 +311,7 @@ fun ModificarClienteScreen(onBack: () -> Unit) {
             override fun onResponse(call: Call<Cliente>, response: Response<Cliente>) {
                 isLoading = false
                 if (response.isSuccessful) {
-                    clienteActual = response.body()
+                    clienteActual = response.body()  //Da la informacion del cliente que buscó anteriormente con el correo
                 } else {
                     Toast.makeText(context, "Cliente no encontrado", Toast.LENGTH_SHORT).show()
                 }
@@ -379,7 +382,7 @@ fun ModificarClienteScreen(onBack: () -> Unit) {
         ) {
             Text("Buscar Cliente", color = Color.White)
         }
-
+        // si hay cliente para editar ->
         clienteActual?.let { cliente ->
 
             Spacer(Modifier.height(16.dp))
@@ -416,7 +419,7 @@ fun ModificarClienteScreen(onBack: () -> Unit) {
 
             // Botón para actualizar el cliente
             Button(
-                onClick = { actualizarCliente() },
+                onClick = { actualizarCliente() }, //llama al método
                 enabled = !isLoading,
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Green)
@@ -442,6 +445,7 @@ fun ModificarClienteScreen(onBack: () -> Unit) {
 // 2.3  borrar cliente
 @Composable
 fun BorrarClienteScreen(onBack: () -> Unit) {
+    // variable del correo
     var inputCorreo by remember { mutableStateOf("") }
     var mensaje by remember { mutableStateOf("") }
 
@@ -481,7 +485,7 @@ fun BorrarClienteScreen(onBack: () -> Unit) {
 
                 Button(
                     onClick = {
-                        borrarCliente(context, inputCorreo) { resultado ->
+                        borrarCliente(context, inputCorreo) { resultado -> //llama al metodo borrarCliente y le pasa las variables
                             mensaje = resultado
                         }
                     },
@@ -518,6 +522,7 @@ fun borrarCliente(
 ) {
     val api = RetrofitClient.apiService
 
+    //busca con el correo para posteriormente coger la id
     val callBuscar = api.getClienteByCorreo(correo)
 
     callBuscar.enqueue(object : Callback<Cliente> {
@@ -525,14 +530,14 @@ fun borrarCliente(
             if (response.isSuccessful) {
                 val cliente = response.body()
                 if (cliente != null) {
-                    val callBorrar = api.deleteCliente(cliente.id_cliente.toString())
+                    val callBorrar = api.deleteCliente(cliente.id_cliente.toString()) //Borra el cliente a través de la ID y el método DELETE del endpoint
                     callBorrar.enqueue(object : Callback<ResponseBody> {
                         override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                             if (response.isSuccessful) {
                                 val mensajeRespuesta = response.body()?.string() ?: "Cliente eliminado correctamente"
                                 onResultado("Cliente eliminado correctamente: $mensajeRespuesta")
                             } else {
-                                onResultado("Error al eliminar cliente: ${response.message()}")
+                                onResultado("Error al eliminar cliente: ${response.message()}")// Si falla da el error y la respuesta del sv
                             }
                         }
 

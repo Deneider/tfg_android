@@ -28,15 +28,16 @@ fun LoginScreen(onLogin: (String, String) -> Unit) {
 
     // ANIMACIÓN de opacidad para el logo
     val transition = rememberInfiniteTransition()
-    val animationValue by transition.animateFloat(
+    val animationValue by transition.animateFloat( //animacion de la imagen del login
         initialValue = 0f,
         targetValue = 1f,
         animationSpec = infiniteRepeatable(
             animation = keyframes {
-                durationMillis = 2000
+                durationMillis = 2000 //duracion
                 0f at 0 with LinearOutSlowInEasing
                 1f at 1000
                 0f at 2000
+                // bucle cada 2 seg de animacion
             },
             repeatMode = RepeatMode.Reverse
         )

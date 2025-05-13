@@ -1,5 +1,7 @@
 package com.example.tfg_android.funcionesSinGui
 
+
+//En esta clase llamamos a los métodos del endpoint de mi API
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.http.Body
@@ -105,6 +107,7 @@ interface ApiService {
         @Query("id_reloj") idReloj: String
     ): Call<ApiResponse>
 
+    // Para obtener al cliente a través de la mac del reloj
     @GET("apiDesubicados/Clientes_Relojes/obtenerPorMacReloj")
     fun getClientePorMacReloj(@Query("mac") mac: String): Call<Cliente>
 

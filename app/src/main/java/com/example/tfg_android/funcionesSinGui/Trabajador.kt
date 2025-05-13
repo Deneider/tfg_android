@@ -1,5 +1,5 @@
 package com.example.tfg_android.funcionesSinGui
-
+//Aqui declaro las variables (campos de la base de datos) de Trabajador
 data class Trabajador(
     val id_trabajador: Int,
     val nombre: String,

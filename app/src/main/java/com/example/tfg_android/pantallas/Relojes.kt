@@ -51,9 +51,10 @@ fun EscanearQR(
     onMacScanned: (String) -> Unit,
     onBack: () -> Unit
 ) {
+
     val context = LocalContext.current
     val activity = context as? Activity
-    var scannedMac by remember { mutableStateOf<String?>(null) }
+    var scannedMac by remember { mutableStateOf<String?>(null) } //variable de la mac escaneada
     var hasLaunched by remember { mutableStateOf(false) }
 
     val qrResultLauncher = rememberLauncherForActivityResult(
@@ -68,25 +69,25 @@ fun EscanearQR(
                 onMacScanned(it) // Enviamos la MAC al padre para asociarla
             }
         } else {
-            onBack() // Si se cancela el escaneo, volvemos
+            onBack() // Si se cancela el escaneo, vuelve atrás
         }
     }
 
     val startQRScanner = {
-        val integrator = IntentIntegrator(activity)
-        integrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE)
-        integrator.setPrompt("Escanea un código QR")
-        integrator.setBeepEnabled(true)
-        integrator.setBarcodeImageEnabled(true)
+        val integrator = IntentIntegrator(activity) //variable para iniciar el escaner
+        integrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE) //solo escanea qr, nada mas
+        integrator.setPrompt("Escanea un código QR") //mensaje que aparece en la pantalla del escaneo
+        integrator.setBeepEnabled(true)// sonido cuando escanee
+        integrator.setBarcodeImageEnabled(true) //se guarda la imagen del qr
         val intent = integrator.createScanIntent()
-        qrResultLauncher.launch(intent)
+        qrResultLauncher.launch(intent) //se lanza el escaneador
     }
 
     // Lanzar escáner al entrar en la pantalla
     LaunchedEffect(Unit) {
         if (!hasLaunched) {
             hasLaunched = true
-            startQRScanner()
+            startQRScanner() //lanza el método
         }
     }
 
@@ -106,7 +107,7 @@ fun EscanearQR(
 
             scannedMac?.let {
                 Spacer(modifier = Modifier.height(16.dp))
-                Text("MAC Escaneada: $it", color = Color.Green)
+                Text("MAC Escaneada: $it", color = Color.Green) //muestra la info , en este caso la mac que lleva el qr del reloj, pero al escanear cualquier qr da la informacion de dentro
             }
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -129,11 +130,11 @@ fun EscanearQR(
 fun AsociarReloj(onBack: () -> Unit) {
     var isScanningQR by remember { mutableStateOf(false) }
     var macEscaneada by remember { mutableStateOf<String?>(null) }
-    var inputCorreoODni by remember { mutableStateOf("") }
+    var inputCorreo by remember { mutableStateOf("") }
     var mensaje by remember { mutableStateOf("") }
 
     val context = LocalContext.current
-
+    //escanea el qr
     if (isScanningQR) {
         EscanearQR(
             onMacScanned = {
@@ -162,9 +163,9 @@ fun AsociarReloj(onBack: () -> Unit) {
                     )
 
                     OutlinedTextField(
-                        value = inputCorreoODni,
-                        onValueChange = { inputCorreoODni = it },
-                        label = { Text("Correo o DNI del cliente") },
+                        value = inputCorreo,
+                        onValueChange = { inputCorreo = it },
+                        label = { Text("Correo del cliente") },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 8.dp),
@@ -191,11 +192,11 @@ fun AsociarReloj(onBack: () -> Unit) {
 
                     Button(
                         onClick = {
-                            asociarReloj(context, inputCorreoODni, macEscaneada) { resultado ->
+                            asociarReloj(context, inputCorreo, macEscaneada) { resultado ->
                                 mensaje = resultado
                             }
                         },
-                        enabled = macEscaneada != null && inputCorreoODni.isNotBlank(),
+                        enabled = macEscaneada != null && inputCorreo.isNotBlank(),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text("ASOCIAR", color = Color.White)
@@ -223,10 +224,11 @@ fun AsociarReloj(onBack: () -> Unit) {
 
 fun asociarReloj(
     context: Context,
-    correoODni: String,
+    correo: String,
     macReloj: String?,
     onResultado: (String) -> Unit
 ) {
+
     if (macReloj == null) {
         onResultado("MAC del reloj no disponible")
         return
@@ -235,10 +237,10 @@ fun asociarReloj(
     val api = RetrofitClient.apiService
 
     // Buscar cliente por correo o DNI
-    val callBuscar = if (correoODni.contains("@")) {
-        api.getClienteByCorreo(correoODni)
+    val callBuscar = if (correo.contains("@")) {
+        api.getClienteByCorreo(correo)
     } else {
-        api.getClienteByDni(correoODni)
+        api.getClienteByDni(correo)// mas adelante se implementara por dni
     }
 
     callBuscar.enqueue(object : Callback<Cliente> {
@@ -246,8 +248,8 @@ fun asociarReloj(
             if (response.isSuccessful) {
                 val cliente = response.body()
                 if (cliente != null) {
-                    // Cliente encontrado, ahora asignar reloj
-                    val callAsignar = api.asignarReloj(cliente.id_cliente.toString(), macReloj)
+                    // Cliente encontrado, ahora asigna reloj
+                    val callAsignar = api.asignarReloj(cliente.id_cliente.toString(), macReloj) //asigna el reloj (MAC) al cliente
                     callAsignar.enqueue(object : Callback<ApiResponse> {
                         override fun onResponse(call: Call<ApiResponse>, response: Response<ApiResponse>) {
                             if (response.isSuccessful) {
@@ -256,7 +258,7 @@ fun asociarReloj(
                                 onResultado("Error al asociar reloj: ${response.message()}")
                             }
                         }
-
+                                                                                                                    //errores varios
                         override fun onFailure(call: Call<ApiResponse>, t: Throwable) {
                             onResultado("Fallo al asociar reloj: ${t.message}")
                         }
@@ -283,12 +285,12 @@ fun asociarReloj(
 fun DesAsociarReloj(onBack: () -> Unit) {
     var isScanningQR by remember { mutableStateOf(false) }
     var macEscaneada by remember { mutableStateOf<String?>(null) }
-    var inputCorreoODni by remember { mutableStateOf("") }
+    var inputCorreo by remember { mutableStateOf("") }
     var mensaje by remember { mutableStateOf("") }
 
     val context = LocalContext.current
 
-    if (isScanningQR) {
+    if (isScanningQR) { //proceso de escanear qr
         EscanearQR(
             onMacScanned = {
                 macEscaneada = it
@@ -317,14 +319,14 @@ fun DesAsociarReloj(onBack: () -> Unit) {
                     )
 
                     OutlinedTextField(
-                        value = inputCorreoODni,
-                        onValueChange = { inputCorreoODni = it },
-                        label = { Text("Correo o DNI del cliente") },
+                        value = inputCorreo,
+                        onValueChange = { inputCorreo = it },
+                        label = { Text("Correo del cliente") },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 8.dp),
                         singleLine = true,
-                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                        colors = TextFieldDefaults.outlinedTextFieldColors( // diseño de colores para el formulario de meter el correo
                             focusedTextColor = Color.White,
                             unfocusedTextColor = Color.White,
                             cursorColor = Color.White,
@@ -353,11 +355,11 @@ fun DesAsociarReloj(onBack: () -> Unit) {
 
                     Button(
                         onClick = {
-                            desasociarReloj(context, inputCorreoODni, macEscaneada) { resultado ->
+                            desasociarReloj(context, inputCorreo, macEscaneada) { resultado ->
                                 mensaje = resultado
                             }
                         },
-                        enabled = macEscaneada != null && inputCorreoODni.isNotBlank(),
+                        enabled = macEscaneada != null && inputCorreo.isNotBlank(),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text("DESASOCIAR", color = Color.White)
@@ -386,7 +388,7 @@ fun DesAsociarReloj(onBack: () -> Unit) {
 
 fun desasociarReloj(
     context: Context,
-    correoODni: String,
+    correo: String,
     macReloj: String?,
     onResultado: (String) -> Unit
 ) {
@@ -394,14 +396,14 @@ fun desasociarReloj(
         onResultado("MAC del reloj no disponible")
         return
     }
-
+    //llamada  a la instancia de la apo
     val api = RetrofitClient.apiService
 
-    // Buscar cliente por correo o DNI
-    val callBuscar = if (correoODni.contains("@")) {
-        api.getClienteByCorreo(correoODni)
+    // Buscar cliente por correo
+    val callBuscar = if (correo.contains("@")) {
+        api.getClienteByCorreo(correo)
     } else {
-        api.getClienteByDni(correoODni)
+        api.getClienteByDni(correo) //se implementara mas adelante con dni tambien
     }
 
     callBuscar.enqueue(object : Callback<Cliente> {
@@ -414,12 +416,12 @@ fun desasociarReloj(
                     callDesasignar.enqueue(object : Callback<ApiResponse> {
                         override fun onResponse(call: Call<ApiResponse>, response: Response<ApiResponse>) {
                             if (response.isSuccessful && response.body()?.success == true) {
-                                onResultado("Error al desasociar reloj")
-                            } else {
                                 onResultado("Reloj desasociado con éxito")
+                            } else {
+                                onResultado("Error al desasociar reloj")
                             }
                         }
-
+                                                                                            //errores varios
                         override fun onFailure(call: Call<ApiResponse>, t: Throwable) {
                             onResultado("Fallo al desasociar reloj: ${t.message}")
                         }
@@ -440,7 +442,7 @@ fun desasociarReloj(
 
 @Composable
 fun CobrarPuntos(onBack: () -> Unit) {
-    var isScanningQR by remember { mutableStateOf(false) }
+    var isScanningQR by remember { mutableStateOf(false) }              //para escanear qr
     var macEscaneada by remember { mutableStateOf<String?>(null) }
     var puntosACobrar by remember { mutableStateOf("") }
     var mensaje by remember { mutableStateOf("") }
@@ -455,7 +457,7 @@ fun CobrarPuntos(onBack: () -> Unit) {
             },
             onBack = { isScanningQR = false }
         )
-    } else {
+    } else { //mientras que no este seleccionada la opcion de escanear qr:
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -476,7 +478,7 @@ fun CobrarPuntos(onBack: () -> Unit) {
                     Spacer(modifier = Modifier.height(8.dp))
 
                     OutlinedTextField(
-                        value = puntosACobrar,
+                        value = puntosACobrar, //lamar a puntos a cobrar para cuando se tenga que hacer la operacion
                         onValueChange = { puntosACobrar = it },
                         label = { Text("Puntos a cobrar") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -534,11 +536,11 @@ fun cobrarPuntos(
     puntos: Int?,
     onResultado: (String) -> Unit
 ) {
-    if (macReloj == null || puntos == null) {
+    if (macReloj == null || puntos == null) { //si estan vacios los campos:
         onResultado("MAC del reloj o puntos inválidos")
         return
     }
-
+    // instancia de la api
     val api = RetrofitClient.apiService
 
     api.getClientePorMacReloj(macReloj).enqueue(object : Callback<Cliente> {
@@ -546,7 +548,7 @@ fun cobrarPuntos(
             if (response.isSuccessful) {
                 val cliente = response.body()
                 if (cliente != null) {
-                    api.cobrarPuntos(cliente.id_cliente, puntos).enqueue(object : Callback<Map<String, Any>> {
+                    api.cobrarPuntos(cliente.id_cliente, puntos).enqueue(object : Callback<Map<String, Any>> { // cobrar putnos a la id del cliente en concreto
                         override fun onResponse(call: Call<Map<String, Any>>, response: Response<Map<String, Any>>) {
                             if (response.isSuccessful) {
                                 onResultado("Puntos cobrados correctamente")
@@ -557,7 +559,7 @@ fun cobrarPuntos(
 
                         override fun onFailure(call: Call<Map<String, Any>>, t: Throwable) {
                             onResultado("Fallo al cobrar puntos: ${t.message}")
-                        }
+                        }                                                                           //errores
                     })
                 } else {
                     onResultado("Cliente no encontrado para la MAC proporcionada")
@@ -576,7 +578,7 @@ fun cobrarPuntos(
 @Composable
 fun RecargarPuntos(onBack: () -> Unit) {
     var isScanningQR by remember { mutableStateOf(false) }
-    var macEscaneada by remember { mutableStateOf<String?>(null) }
+    var macEscaneada by remember { mutableStateOf<String?>(null) }          //para escanear el qr
     var puntosARecargar by remember { mutableStateOf("") }
     var mensaje by remember { mutableStateOf("") }
 
@@ -590,7 +592,7 @@ fun RecargarPuntos(onBack: () -> Unit) {
             },
             onBack = { isScanningQR = false }
         )
-    } else {
+    } else { // si no esta escaneando qr: (muestra el menu)
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -669,11 +671,11 @@ fun recargarPuntos(
     puntos: Int?,
     onResultado: (String) -> Unit
 ) {
-    if (macReloj == null || puntos == null) {
+    if (macReloj == null || puntos == null) { //si no estan los campos de las variables rellenados
         onResultado("MAC del reloj o puntos inválidos")
         return
     }
-
+    // variable de la instanci de la api
     val api = RetrofitClient.apiService
 
     api.getClientePorMacReloj(macReloj).enqueue(object : Callback<Cliente> {
@@ -681,7 +683,7 @@ fun recargarPuntos(
             if (response.isSuccessful) {
                 val cliente = response.body()
                 if (cliente != null) {
-                    api.anadirPuntos(cliente.id_cliente, puntos).enqueue(object : Callback<Map<String, Any>> {
+                    api.anadirPuntos(cliente.id_cliente, puntos).enqueue(object : Callback<Map<String, Any>> { //añadir puntos al cliente
                         override fun onResponse(call: Call<Map<String, Any>>, response: Response<Map<String, Any>>) {
                             if (response.isSuccessful) {
                                 onResultado("Puntos recargados correctamente")

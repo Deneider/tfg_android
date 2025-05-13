@@ -1,5 +1,5 @@
 package com.example.tfg_android.pantallas
-
+// Funcionalidades de Empleados
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -54,7 +54,7 @@ import java.util.Locale
 fun AltaEmpleadoScreen(onBack: () -> Unit) {
     val context = LocalContext.current
 
-    // Estados para los campos de entrada
+    // Variables para empleado nuevo
     var nombre by remember { mutableStateOf("") }
     var apellido1 by remember { mutableStateOf("") }
     var apellido2 by remember { mutableStateOf("") }
@@ -72,7 +72,7 @@ fun AltaEmpleadoScreen(onBack: () -> Unit) {
     var isLoading by remember { mutableStateOf(false) }
     var isDatePickerOpen by remember { mutableStateOf(false) }
 
-
+    // se llama a la instancia de apiService
     val apiService = RetrofitClient.retrofitInstance.create(ApiService::class.java)
 
     // Configuración de la fecha
@@ -123,10 +123,10 @@ fun AltaEmpleadoScreen(onBack: () -> Unit) {
                     colors = ColoresFormularios.textoBlanco()
                 )
 
-                // Estado para abrir el DatePicker
+                // Comprobar si el que usa la app habilita el dar fecha de nacimiento
                 var isDatePickerDialogShown by remember { mutableStateOf(false) }
 
-                if (isDatePickerDialogShown) {
+                if (isDatePickerDialogShown) { // si se selecciona la opcion de datePicker
                     android.app.DatePickerDialog(
                         context,
                         { _, year, month, dayOfMonth ->
@@ -136,7 +136,7 @@ fun AltaEmpleadoScreen(onBack: () -> Unit) {
                         },
                         calendar.get(Calendar.YEAR),
                         calendar.get(Calendar.MONTH),
-                        calendar.get(Calendar.DAY_OF_MONTH)
+                        calendar.get(Calendar.DAY_OF_MONTH) //Fecha
                     ).show()
                 }
 
@@ -157,7 +157,7 @@ fun AltaEmpleadoScreen(onBack: () -> Unit) {
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(
-                        onClick = { isDatePickerDialogShown = true },
+                        onClick = { isDatePickerDialogShown = true }, //Si se le da al boton incia Datepicker
                         colors = ButtonDefaults.buttonColors(containerColor = Color.Gray)
                     ) {
                         Text("Seleccionar Fecha", color = Color.White)
@@ -275,7 +275,7 @@ fun AltaEmpleadoScreen(onBack: () -> Unit) {
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Button(
-                    onClick = {
+                    onClick = {// si no estan llenos los campos no deja continuar
                         if (nombre.isBlank() || apellido1.isBlank() || apellido2.isBlank() || fechaNacimiento.isBlank() ||
                             dni.isBlank()|| calle.isBlank() || numero_casa.isBlank() || localidad.isBlank() || provincia.isBlank() || cod_postal.isBlank() ||
                             nacionalidad.isBlank() || correo.isBlank() || contrasena.isBlank() || puesto.isBlank()) {
@@ -286,7 +286,7 @@ fun AltaEmpleadoScreen(onBack: () -> Unit) {
 
                         isLoading = true
                         val nuevoTrabajador = Trabajador(
-                            id_trabajador = 0, // El backend lo generará
+                            id_trabajador = 0, // El backend lo generará ya que es autoincremental en la bdd
                             nombre = nombre,
                             primer_apellido = apellido1,
                             segundo_apellido = apellido2,
@@ -302,7 +302,7 @@ fun AltaEmpleadoScreen(onBack: () -> Unit) {
                             contrasena = contrasena,
                             puesto = puesto
                         )
-
+                        //llama a la api y le pasa las variables rellenadas
                         apiService.createTrabajador(nuevoTrabajador).enqueue(object : retrofit2.Callback<Void> {
                             override fun onResponse(call: Call<Void>, response: Response<Void>) {
                                 isLoading = false
@@ -311,7 +311,7 @@ fun AltaEmpleadoScreen(onBack: () -> Unit) {
                                     onBack()
                                 } else {
                                     Toast.makeText(context, "Error en el registro", Toast.LENGTH_SHORT).show()
-                                }
+                                }                                                                                           // Listado de errores varios
                             }
 
                             override fun onFailure(call: Call<Void>, t: Throwable) {
@@ -348,10 +348,11 @@ fun AltaEmpleadoScreen(onBack: () -> Unit) {
 // Pantalla para modificar empleados
 @Composable
 fun ModificarEmpleadoScreen(onBack: () -> Unit) {
+    // llama a la instancia de la API
     val context = LocalContext.current
     val apiService = RetrofitClient.retrofitInstance.create(ApiService::class.java)
 
-    var correoBusqueda by remember { mutableStateOf("") }
+    var correoBusqueda by remember { mutableStateOf("") }       //variable del correo para buscar
     var trabajadorActual by remember { mutableStateOf<Trabajador?>(null) }
     var isLoading by remember { mutableStateOf(false) }
 
@@ -359,17 +360,17 @@ fun ModificarEmpleadoScreen(onBack: () -> Unit) {
     val formatoSalida = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())  // para mostrar
     val formatoValidacion = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
 
-    fun cargarTrabajadorPorCorreo(correo: String) {
+    fun cargarTrabajadorPorCorreo(correo: String) { //para buscar cliente por correo con variable correoBusqueda
         if (correo.isBlank()) {
             Toast.makeText(context, "Introduce un correo", Toast.LENGTH_SHORT).show()
             return
         }
 
         isLoading = true
-        apiService.getTrabajadorByCorreo(correo.trim()).enqueue(object : Callback<Trabajador> {
+        apiService.getTrabajadorByCorreo(correo.trim()).enqueue(object : Callback<Trabajador> { //busca el correo buscando con la instancia de la API
             override fun onResponse(call: Call<Trabajador>, response: Response<Trabajador>) {
                 isLoading = false
-                if (response.isSuccessful) {
+                if (response.isSuccessful) {        // si lo encuentra:
                     response.body()?.let {
                         // Convertir fecha de nacimiento para mostrar en formato "dd-MM-yyyy"
                         val fechaMostrada = try {
@@ -384,7 +385,7 @@ fun ModificarEmpleadoScreen(onBack: () -> Unit) {
                 }
             }
 
-            override fun onFailure(call: Call<Trabajador>, t: Throwable) {
+            override fun onFailure(call: Call<Trabajador>, t: Throwable) {      //error
                 isLoading = false
                 Toast.makeText(context, "Error de conexión: ${t.message}", Toast.LENGTH_SHORT).show()
             }
@@ -402,7 +403,7 @@ fun ModificarEmpleadoScreen(onBack: () -> Unit) {
             }
 
             isLoading = true
-            apiService.updateTrabajador(trabajador.id_trabajador, trabajador).enqueue(object : Callback<Void> {
+            apiService.updateTrabajador(trabajador.id_trabajador, trabajador).enqueue(object : Callback<Void> { // la api actualiza el trabajador
                 override fun onResponse(call: Call<Void>, response: Response<Void>) {
                     isLoading = false
                     if (response.isSuccessful) {
@@ -411,7 +412,7 @@ fun ModificarEmpleadoScreen(onBack: () -> Unit) {
                     } else {
                         Toast.makeText(context, "Error al actualizar trabajador", Toast.LENGTH_SHORT).show()
                     }
-                }
+                }                                                                                       //devolucion de errores
 
                 override fun onFailure(call: Call<Void>, t: Throwable) {
                     isLoading = false
@@ -453,7 +454,7 @@ fun ModificarEmpleadoScreen(onBack: () -> Unit) {
             Text("Buscar Trabajador", color = Color.White)
         }
 
-        trabajadorActual?.let { trabajador ->
+        trabajadorActual?.let { trabajador -> //campos de trabajador
             Spacer(Modifier.height(16.dp))
 
             val campos = listOf(
@@ -585,22 +586,23 @@ fun borrarEmpleado(
     correo: String,
     onResultado: (String) -> Unit
 ) {
+    // instancia de la api
     val api = RetrofitClient.apiService
 
-    val callBuscar = api.getTrabajadorByCorreo(correo)
+    val callBuscar = api.getTrabajadorByCorreo(correo) //busqueda por correo
 
     callBuscar.enqueue(object : Callback<Trabajador> {
-        override fun onResponse(call: Call<Trabajador>, response: Response<Trabajador>) {
+        override fun onResponse(call: Call<Trabajador>, response: Response<Trabajador>) { //busca trabajador por correo
             if (response.isSuccessful) {
                 val trabajador = response.body()
                 if (trabajador != null) {
-                    val callBorrar = api.deleteTrabajador(trabajador.id_trabajador)
+                    val callBorrar = api.deleteTrabajador(trabajador.id_trabajador) //busca la id del trabajador y lo procede a borrar
                     callBorrar.enqueue(object : Callback<ResponseBody> {
                         override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                             if (response.isSuccessful) {
                                 val mensajeRespuesta = response.body()?.string() ?: "Empleado eliminado correctamente"
                                 onResultado("Empleado eliminado correctamente: $mensajeRespuesta")
-                            } else {
+                            } else {                                                            //Errores
                                 onResultado("Error al eliminar empleado: ${response.message()}")
                             }
                         }
