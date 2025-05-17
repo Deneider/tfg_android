@@ -1,11 +1,13 @@
 package com.example.tfg_android.pantallas
 // Funcionalidades de la pantalla clietnes
+import android.app.DatePickerDialog
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -120,32 +123,40 @@ fun AltaClienteScreen(onBack: () -> Unit) {
                     colors = ColoresFormularios.textoBlanco()
                 )
 
-                // Fecha de nacimiento con datepicker (Es un selector de fechas, abre el  navito del SO)
-                OutlinedTextField(
-                    value = fechaNacimiento,
-                    onValueChange = {},
-                    label = { Text("Fecha de Nacimiento") },
-                    readOnly = true,
-                    colors = ColoresFormularios.textoBlanco(),
+                // si el datePickerOpen es true: y que deje seleccionar la fecha deseada
+                if (isDatePickerOpen) {
+                    DatePickerDialog(
+                        context,
+                        { _, year, month, dayOfMonth ->
+                            calendar.set(year, month, dayOfMonth)
+                            fechaNacimiento = dateFormatter.format(calendar.time)
+                            isDatePickerOpen = false
+                        },// selección de mes dia y año
+                        calendar.get(Calendar.YEAR),
+                        calendar.get(Calendar.MONTH),
+                        calendar.get(Calendar.DAY_OF_MONTH)
+                    ).show()
+                }
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { isDatePickerOpen = true }
-                )
-                if (isDatePickerOpen) {
-                    // abrimos el selector de fecha con launched effect
-                    LaunchedEffect(Unit) {
-                        val datePickerDialog = android.app.DatePickerDialog( // guardo la información del datepicker con la variable datePickerDialog
-                            context,
-                            { _, year, month, dayOfMonth ->
-                                calendar.set(year, month, dayOfMonth)
-                                fechaNacimiento = dateFormatter.format(calendar.time)
-                                isDatePickerOpen = false
-                            },
-                            calendar.get(Calendar.YEAR),
-                            calendar.get(Calendar.MONTH),
-                            calendar.get(Calendar.DAY_OF_MONTH) //Recojo la información que pone el usuario en su fecha de nacimiento
-                        )
-                        datePickerDialog.show() // muestro el datepicker para que el usuario pueda seleccionar su fecha de nacimiento
+                        .padding(vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    OutlinedTextField(
+                        value = fechaNacimiento,
+                        onValueChange = {},
+                        label = { Text("Fecha de Nacimiento") },
+                        readOnly = true,
+                        modifier = Modifier.weight(1f),
+                        colors = ColoresFormularios.textoBlanco()
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(
+                        onClick = { isDatePickerOpen  = true }, //Si se le da al boton incia Datepicker
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Gray)
+                    ) {
+                        Text("Seleccionar Fecha", color = Color.White)
                     }
                 }
 
