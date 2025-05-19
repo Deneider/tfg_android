@@ -276,14 +276,42 @@ fun AltaEmpleadoScreen(onBack: () -> Unit) {
 
                 Button(
                     onClick = {// si no estan llenos los campos no deja continuar
+                        // Validación de campos obligatorios
                         if (nombre.isBlank() || apellido1.isBlank() || apellido2.isBlank() || fechaNacimiento.isBlank() ||
                             dni.isBlank()|| calle.isBlank() || numero_casa.isBlank() || localidad.isBlank() || provincia.isBlank() || cod_postal.isBlank() ||
-                            nacionalidad.isBlank() || correo.isBlank() || contrasena.isBlank() || puesto.isBlank()) {
-
+                            nacionalidad.isBlank() || correo.isBlank() || contrasena.isBlank() || puesto.isBlank()
+                            ) {
                             Toast.makeText(context, "Todos los campos son obligatorios", Toast.LENGTH_SHORT).show()
                             return@Button
                         }
 
+                        // validar datos correctos
+                        val dniRegex = Regex("^\\d{8}[A-Za-z]\$") //permite 8 num y una letra || no existe todavia la posibilidad de NIF o variantes.
+                        val codPostalRegex = Regex("^\\d{5}\$") // solo permite 5 num
+                        val numeroCasaRegex = Regex("^\\d+\$") // solo permite digitos
+                        val correoRegex = Regex("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+\$") //exige un @ y un . para hacer el correo
+
+                        if (!dniRegex.matches(dni)) {
+                            Toast.makeText(context, "DNI no válido. Deben ser 8 números seguidos de una letra.", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        }
+
+                        if (!codPostalRegex.matches(cod_postal)) {
+                            Toast.makeText(context, "Código postal no válido. Deben ser exactamente 5 dígitos.", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        }
+
+                        if (!numeroCasaRegex.matches(numero_casa)) {
+                            Toast.makeText(context, "Número de casa no válido. Solo se permiten números.", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        }
+
+                        if (!correoRegex.matches(correo)) {
+                            Toast.makeText(context, "Correo electrónico no válido.", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        }
+
+                        // si se valida correctamente se creara el nuevo trabajador
                         isLoading = true
                         val nuevoTrabajador = Trabajador(
                             id_trabajador = 0, // El backend lo generará ya que es autoincremental en la bdd
@@ -312,6 +340,7 @@ fun AltaEmpleadoScreen(onBack: () -> Unit) {
                                 } else {
                                     Toast.makeText(context, "Error en el registro", Toast.LENGTH_SHORT).show()
                                 }                                                                                           // Listado de errores varios
+
                             }
 
                             override fun onFailure(call: Call<Void>, t: Throwable) {

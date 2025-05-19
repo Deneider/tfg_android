@@ -244,6 +244,32 @@ fun AltaClienteScreen(onBack: () -> Unit) {
                             return@Button
                         }
 
+                        val dniRegex = Regex("^\\d{8}[A-Za-z]$")
+                        val codPostalRegex = Regex("^\\d{5}$")
+                        val numeroCasaRegex = Regex("^\\d+$")
+                        val correoRegex = Regex("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")
+
+
+                        if (!dniRegex.matches(dni)) {
+                            Toast.makeText(context, "DNI no válido. Deben ser 8 números seguidos de una letra.", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        }
+
+                        if (!codPostalRegex.matches(cod_postal)) {
+                            Toast.makeText(context, "Código postal no válido. Deben ser exactamente 5 dígitos.", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        }
+
+                        if (!numeroCasaRegex.matches(numero_casa)) {
+                            Toast.makeText(context, "Número de casa no válido. Solo se permiten números.", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        }
+
+                        if (!correoRegex.matches(correo)) {
+                            Toast.makeText(context, "Correo electrónico no válido.", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        }
+                        // si se valida correctamente se creara el nuevo cliente
                         isLoading = true
                         val nuevoCliente = Cliente(
                             id_cliente = 0, // El backend del endpoint  lo generará automaticamente (la bdd genera de forma autoincremental la id_cliente)
