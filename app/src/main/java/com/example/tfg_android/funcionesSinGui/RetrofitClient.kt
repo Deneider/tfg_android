@@ -4,7 +4,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 //Sirve para  configurar y/o poder acceder al Retrofit desde cualquier clase y/o funcionalidad de la app
 object RetrofitClient {
-    private const val BASE_URL = "http://90.169.44.35:8000/"    // URL definida
+    private const val BASE_URL = "http://obkserver.duckdns.org:8000/"    // URL definida
     // una instancia  de retrofit cuando se use por primera vez
     val retrofitInstance: Retrofit by lazy {
         Retrofit.Builder()
