@@ -8,5 +8,5 @@ Gestionar tanto clientes como empleados, cobrar y añadir puntos a los usuarios 
 Con importar y compilar el código en Android Studio bastaría.
 ### Usuarios
 Tan solo se necesita el usuario "jefe" para poder experimentar con la app ya que no hay una pantalla de registro porque esto no es una app que se podrá descargar en una plataforma de apps.
-Nombre de usuario: prueba@gmail.com
+Nombre de usuario (correo electróncio): prueba@gmail.com
 Contraseña: prueba
