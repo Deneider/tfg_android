@@ -10,3 +10,10 @@ Con importar y compilar el código en Android Studio bastaría.
 Tan solo se necesita el usuario "jefe" para poder experimentar con la app ya que no hay una pantalla de registro porque esto no es una app que se podrá descargar en una plataforma de apps.
 Nombre de usuario (correo electróncio): prueba@gmail.com
 Contraseña: prueba
+### Una vez iniciada sesion
+Se pueden crear usuarios clientes y empleados para poder crear una plantilla.
+
+
+### ¿Por qué no hay un botón para registrar?
+
+Porque no es una app pensada para que se descargue desde una plataforma de aplicaciones.
