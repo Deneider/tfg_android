@@ -6,6 +6,14 @@ plugins {
 android {
     namespace = "com.example.tfg_android"
     compileSdk = 35
+    //nombre apk
+
+    applicationVariants.all {
+        outputs.all {
+            (this as com.android.build.gradle.internal.api.BaseVariantOutputImpl).outputFileName = "DesUbicadosTPV.apk"
+        }
+    }
+
 
     defaultConfig {
         applicationId = "com.example.tfg_android"
